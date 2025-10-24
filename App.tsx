@@ -1,25 +1,13 @@
-import { StatusBar } from 'expo-status-bar';
-import { Alert, StyleSheet, Text, View } from 'react-native';
-import ComponenteBoton from './components/ComponenteBoton';
 import React from 'react';
-import ComponenteTexto from './components/ComponenteTexto';
-import ComponenteTarjeta from './components/ComponenteTarjeta';
+import { NavigationContainer } from '@react-navigation/native';
+import AppNavigator from './AppNavigator';
 
-
-
-export default function App() {
+const App: React.FC = () => {
   return (
-    <View style={styles.container}>
-  
-    </View>
+    <NavigationContainer>
+      <AppNavigator />
+    </NavigationContainer>
   );
-}
+};
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+export default App;

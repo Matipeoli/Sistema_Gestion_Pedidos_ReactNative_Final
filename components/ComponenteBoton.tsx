@@ -1,44 +1,25 @@
 import React from 'react';
-import { StyleSheet, Button, View, Text, Alert } from 'react-native';
-import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
+import { StyleSheet, Button, View } from 'react-native';
 
-const ComponenteBoton = () => {
+type ComponenteBotonProps = {
+  title: string;
+  onPress: () => void; 
+};
+
+const ComponenteBoton: React.FC<ComponenteBotonProps> = ({ title, onPress }) => {
   return (
-    <SafeAreaProvider>
-      <SafeAreaView style={styles.container}>
-        <View>
-          <Text style={styles.title}>
-            The title and onPress handler are required. It is recommended to set
-            accessibilityLabel to help make your app usable by everyone.
-          </Text>
-          <Button
-            title="Press me"
-            onPress={() => Alert.alert('Simple Button pressed')}
-          />
-        </View>
-      </SafeAreaView>
-    </SafeAreaProvider>
+    <View style={styles.container}>
+      <Button title={title} onPress={onPress} />
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    justifyContent: 'center',
-    marginHorizontal: 16,
-  },
-  title: {
-    textAlign: 'center',
-    marginVertical: 8,
-  },
-  fixToText: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  separator: {
-    marginVertical: 8,
-    borderBottomColor: '#737373',
-    borderBottomWidth: StyleSheet.hairlineWidth,
+    marginVertical: 10,
+    marginHorizontal: 12,
+    borderRadius: 8,
+    overflow: 'hidden',
   },
 });
 

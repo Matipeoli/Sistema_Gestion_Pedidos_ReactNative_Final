@@ -1,37 +1,43 @@
 import React from 'react';
-import {StyleSheet, TextInput} from 'react-native';
-import {SafeAreaView, SafeAreaProvider} from 'react-native-safe-area-context';
+import { StyleSheet, TextInput, TextInputProps } from 'react-native';
 
-const ComponenteTexto = () => {
-  const [text, onChangeText] = React.useState('Useless Text');
-  const [number, onChangeNumber] = React.useState('');
+// usamos esto para los campos de texto reutilizables
+type ComponenteTextoProps = {
+  value: string;
+  onChangeText: (text: string) => void;
+  placeholder?: string;
+  secureTextEntry?: boolean;
+  keyboardType?: TextInputProps['keyboardType'];
+};
 
+const ComponenteTexto: React.FC<ComponenteTextoProps> = ({
+  value,
+  onChangeText,
+  placeholder,
+  secureTextEntry,
+  keyboardType,
+}) => {
   return (
-    <SafeAreaProvider>
-      <SafeAreaView>
-        <TextInput
-          style={styles.input}
-          onChangeText={onChangeText}
-          value={text}
-        />
-        <TextInput
-          style={styles.input}
-          onChangeText={onChangeNumber}
-          value={number}
-          placeholder="useless placeholder"
-          keyboardType="numeric"
-        />
-      </SafeAreaView>
-    </SafeAreaProvider>
+    <TextInput
+      style={styles.input}
+      value={value}
+      onChangeText={onChangeText}
+      placeholder={placeholder}
+      secureTextEntry={secureTextEntry}
+      keyboardType={keyboardType || 'default'}
+    />
   );
 };
 
 const styles = StyleSheet.create({
   input: {
-    height: 40,
-    margin: 12,
+    height: 50,
+    marginVertical: 8,
+    marginHorizontal: 12,
     borderWidth: 1,
-    padding: 10,
+    borderRadius: 8,
+    color: '#666',
+    paddingHorizontal: 10,
   },
 });
 
