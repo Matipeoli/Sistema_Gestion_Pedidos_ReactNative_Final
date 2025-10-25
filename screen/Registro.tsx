@@ -13,6 +13,7 @@ type RootStackParamList = {
 const Registro: React.FC = () => {
   const [email, setEmail] = useState('');
   const [nombre, setNombre] = useState('');
+  const [apellido, setApellido] = useState('');
   const [password, setPassword] = useState('');
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
@@ -22,7 +23,7 @@ const Registro: React.FC = () => {
 
   const handleLogin = () => {
     let valid = true;
-// Validacion del login(email y contraseña)
+// Validacion del registro(email y contraseña)
     if (!email) {
       setEmailError('Ingrese un email');
       valid = false;
@@ -56,12 +57,23 @@ const Registro: React.FC = () => {
         />
         {emailError ? <Text style={styles.error}>{emailError}</Text> : null}
 
+    <View style={styles.rowContainer}>
+      <View style={styles.inputHalf}>
         <ComponenteTexto
           placeholder="Nombre"
           value={nombre}
           onChangeText={setNombre}
         />
+        </View>
 
+        <View style={styles.inputHalf}>
+        <ComponenteTexto
+          placeholder="Apellido"
+          value={apellido}
+          onChangeText={setApellido}
+        />
+        </View>
+    </View >
         <ComponenteTexto
           placeholder="Contraseña"
           value={password}
@@ -70,9 +82,9 @@ const Registro: React.FC = () => {
         />
         {passwordError ? <Text style={styles.error}>{passwordError}</Text> : null}
 
-        <ComponenteBoton title="Ingresar" onPress={handleLogin} />
+        <ComponenteBoton title="Registrarte" onPress={handleLogin} />
 
-        <TouchableOpacity onPress={() => console.log('Ir a registro')}>
+        <TouchableOpacity onPress={() => console.log('Ir al login')}>
           <Text style={styles.link}>¿Ya tenes cuenta? Ingresa</Text>
         </TouchableOpacity>
       </View>
@@ -113,6 +125,14 @@ const styles = StyleSheet.create({
     color: '#0fbd0f',
     textAlign: 'center',
     marginTop: 15,
+  },
+  rowContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    
+  },
+  inputHalf: {
+    flex: 1, 
   },
 });
 
