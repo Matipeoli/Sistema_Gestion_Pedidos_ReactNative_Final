@@ -8,7 +8,8 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 type RootStackParamList = {
   AdminScreen: undefined;
   UserScreen: undefined;
-  RegisterScreen: undefined; // ← Agregado
+  RegisterScreen: undefined;
+  IndexMainUs: undefined; // ← AGREGAR
 };
 
 const LoginScreen: React.FC = () => {
@@ -19,27 +20,50 @@ const LoginScreen: React.FC = () => {
 
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
+  const handleEmailChange = (text: string) => {
+    setEmail(text);
+    if (emailError) setEmailError('');
+  };
+
+  const handlePasswordChange = (text: string) => {
+    setPassword(text);
+    if (passwordError) setPasswordError('');
+  };
+
   const handleLogin = () => {
     let valid = true;
 
+    // Validación del email
     if (!email) {
       setEmailError('Ingrese un email');
       valid = false;
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       setEmailError('Email inválido');
       valid = false;
-    } else setEmailError('');
+    } else {
+      setEmailError('');
+    }
 
+    // Validación de la contraseña
     if (!password) {
       setPasswordError('Ingrese contraseña');
       valid = false;
-    } 
+    } else {
+      setPasswordError('');
+    }
 
     if (!valid) return;
 
-    const rol = email === 'admin@ejemplo.com' ? 'admin' : 'user';
-    if (rol === 'admin') navigation.navigate('AdminScreen');
-    else navigation.navigate('UserScreen');
+    // LÓGICA HARDCODEADA DE ROLES
+    // Admin: admin@ejemplo.com / Cualquier contraseña
+    // Usuario normal: cualquier otro email válido
+    
+    if (email === 'admin@ejemplo.com') {
+      navigation.navigate('AdminScreen');
+    } else {
+      // TODOS LOS USUARIOS NORMALES VAN AL MAIN
+      navigation.navigate('IndexMainUs');
+    }
   };
 
   return (
@@ -48,9 +72,9 @@ const LoginScreen: React.FC = () => {
         <Text style={styles.title}>i2TASTE</Text>
 
         <ComponenteTexto
-          placeholder="Usuario"
+          placeholder="Email"
           value={email}
-          onChangeText={setEmail}
+          onChangeText={handleEmailChange}
           keyboardType="email-address"
         />
         {emailError ? <Text style={styles.error}>{emailError}</Text> : null}
@@ -58,7 +82,7 @@ const LoginScreen: React.FC = () => {
         <ComponenteTexto
           placeholder="Contraseña"
           value={password}
-          onChangeText={setPassword}
+          onChangeText={handlePasswordChange}
           secureTextEntry
         />
         {passwordError ? <Text style={styles.error}>{passwordError}</Text> : null}
@@ -68,6 +92,13 @@ const LoginScreen: React.FC = () => {
         <TouchableOpacity onPress={() => navigation.navigate('RegisterScreen')}>
           <Text style={styles.link}>¿No tienes cuenta? Regístrate</Text>
         </TouchableOpacity>
+
+        {/* AYUDA VISUAL PARA TESTING */}
+        <View style={styles.testInfo}>
+          <Text style={styles.testText}>Usuarios de prueba:</Text>
+          <Text style={styles.testText}>Admin: admin@ejemplo.com</Text>
+          <Text style={styles.testText}>Usuario: cualquier@email.com</Text>
+        </View>
       </View>
     </View>
   );
@@ -101,11 +132,25 @@ const styles = StyleSheet.create({
     color: '#ff4d4d',
     marginBottom: 8,
     marginLeft: 12,
+    fontSize: 12,
   },
   link: {
     color: '#0fbd0f',
     textAlign: 'center',
     marginTop: 15,
+  },
+  testInfo: {
+    marginTop: 20,
+    padding: 12,
+    backgroundColor: '#2a2a2a',
+    borderRadius: 8,
+    borderLeftWidth: 3,
+    borderLeftColor: '#0fbd0f',
+  },
+  testText: {
+    color: '#999',
+    fontSize: 12,
+    marginVertical: 2,
   },
 });
 

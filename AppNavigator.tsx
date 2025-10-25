@@ -4,7 +4,8 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import AdminScreen from './screen/AdminScreen';
 import UserScreen from './screen/UserScreen';
 import LoginScreen from './screen/Login';
-import RegisterScreen from './screen/RegisterScreen'; // ← Agregar esta línea
+import RegisterScreen from './screen/RegisterScreen';
+import IndexMainUs from './screen/IndexMainUs'; // ← AGREGAR
 
 const Stack = createNativeStackNavigator();
 
@@ -19,6 +20,11 @@ const AppNavigator: React.FC = () => {
       <Stack.Screen 
         name="RegisterScreen" 
         component={RegisterScreen} 
+        options={{ headerShown: false }} 
+      />
+      <Stack.Screen 
+        name="IndexMainUs" 
+        component={IndexMainUs} 
         options={{ headerShown: false }} 
       />
       <Stack.Screen 
