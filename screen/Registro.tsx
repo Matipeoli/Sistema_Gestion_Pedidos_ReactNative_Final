@@ -10,11 +10,13 @@ type RootStackParamList = {
   UserScreen: undefined;
 };
 
-const LoginScreen: React.FC = () => {
+const Registro: React.FC = () => {
   const [email, setEmail] = useState('');
+  const [nombre, setNombre] = useState('');
   const [password, setPassword] = useState('');
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
+  
 
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
@@ -55,6 +57,12 @@ const LoginScreen: React.FC = () => {
         {emailError ? <Text style={styles.error}>{emailError}</Text> : null}
 
         <ComponenteTexto
+          placeholder="Nombre"
+          value={nombre}
+          onChangeText={setNombre}
+        />
+
+        <ComponenteTexto
           placeholder="Contraseña"
           value={password}
           onChangeText={setPassword}
@@ -65,7 +73,7 @@ const LoginScreen: React.FC = () => {
         <ComponenteBoton title="Ingresar" onPress={handleLogin} />
 
         <TouchableOpacity onPress={() => console.log('Ir a registro')}>
-          <Text style={styles.link}>¿No tenes cuenta? Regístrate</Text>
+          <Text style={styles.link}>¿Ya tenes cuenta? Ingresa</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -108,4 +116,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default LoginScreen;
+export default Registro;
