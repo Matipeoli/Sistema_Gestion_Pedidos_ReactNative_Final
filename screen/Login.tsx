@@ -8,6 +8,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 type RootStackParamList = {
   AdminScreen: undefined;
   UserScreen: undefined;
+  RegisterScreen: undefined; // ← Agregado
 };
 
 const LoginScreen: React.FC = () => {
@@ -20,7 +21,7 @@ const LoginScreen: React.FC = () => {
 
   const handleLogin = () => {
     let valid = true;
-// Validacion del login(email y contraseña)
+
     if (!email) {
       setEmailError('Ingrese un email');
       valid = false;
@@ -35,7 +36,7 @@ const LoginScreen: React.FC = () => {
     } 
 
     if (!valid) return;
-//hardcodeo de roles admin y user
+
     const rol = email === 'admin@ejemplo.com' ? 'admin' : 'user';
     if (rol === 'admin') navigation.navigate('AdminScreen');
     else navigation.navigate('UserScreen');
@@ -64,7 +65,7 @@ const LoginScreen: React.FC = () => {
 
         <ComponenteBoton title="Ingresar" onPress={handleLogin} />
 
-        <TouchableOpacity onPress={() => console.log('Ir a registro')}>
+        <TouchableOpacity onPress={() => navigation.navigate('RegisterScreen')}>
           <Text style={styles.link}>¿No tienes cuenta? Regístrate</Text>
         </TouchableOpacity>
       </View>
@@ -84,7 +85,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#1e1e1e',
     padding: 20,
     borderRadius: 12,
-    shadowColor: '#000000ff',
+    shadowColor: '#000000',
     shadowOpacity: 0.3,
     shadowRadius: 10,
     elevation: 10,
