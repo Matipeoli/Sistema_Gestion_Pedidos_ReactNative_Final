@@ -4,8 +4,7 @@ import LoginScreen from './screen/Login';
 import Registro from './screen/Registro';
 import IndexMainUs from './screen/IndexMainUs';
 import IndexPedidoAL from './screen/IndexPedidoAL';
-
-
+import IndexHistorial from './screen/IndexHistoial';
 
 const Stack = createNativeStackNavigator();
 
@@ -16,6 +15,8 @@ const AppNavigator: React.FC = () => {
       <Stack.Screen name="LoginScreen" component={LoginScreen} />
       <Stack.Screen name="IndexMainUs" component={IndexMainUs} />
       <Stack.Screen name="IndexPedidoAL" component={IndexPedidoAL} />
+      <Stack.Screen name="IndexHistorial" component={IndexHistorial} />
+      
     </Stack.Navigator>
   );
 };

@@ -1,4 +1,4 @@
-import * as React from 'react';
+import  React from 'react';
 import { View, Text, Image, TouchableOpacity, Modal, StyleSheet, ScrollView, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -7,6 +7,7 @@ import ComponenteTarjeta from '../components/ComponenteTarjeta';
 type RootStackParamList = {
   LoginScreen: undefined;
   IndexMainUs: undefined;
+  IndexHistorial: undefined;
 };
 
 const IndexMainUs: React.FC = () => {
@@ -26,7 +27,7 @@ const IndexMainUs: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      {/* HEADER */}
+      {/* header */}
       <View style={styles.header}>
         <Text style={styles.logo}>
           i2T<Text style={{ color: '#0beb03ff' }}>ASTE</Text>
@@ -44,7 +45,7 @@ const IndexMainUs: React.FC = () => {
         </View>
       </View>
 
-      {/* SCROLL DE TARJETAS */}
+      {/* tarjetas scroll */}
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <ComponenteTarjeta
           title="Hamburguesa Clásica"
@@ -71,11 +72,11 @@ const IndexMainUs: React.FC = () => {
         />
       </ScrollView>
 
-      {/* SIDEBAR (PERFIL) */}
+      {/* menu hamburguesa */}
       <Modal visible={visible} transparent animationType="slide">
-        <TouchableOpacity 
-          style={styles.modalOverlay} 
-          activeOpacity={1} 
+        <TouchableOpacity
+          style={styles.modalOverlay}
+          activeOpacity={1}
           onPress={closeSidebar}
         >
           <TouchableOpacity activeOpacity={1} onPress={(e) => e.stopPropagation()}>
@@ -87,8 +88,8 @@ const IndexMainUs: React.FC = () => {
               <Text style={styles.title}>Perfil de Usuario</Text>
               <Text style={styles.text}>Nombre: Juan Pérez</Text>
               <Text style={styles.text}>Email: juan.perez@example.com</Text>
-              
-              <TouchableOpacity 
+
+              <TouchableOpacity
                 style={styles.recoverBtn}
                 onPress={() => {
                   closeSidebar();
@@ -97,8 +98,17 @@ const IndexMainUs: React.FC = () => {
               >
                 <Text style={styles.recoverText}>Recuperar Contraseña</Text>
               </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.historyBtn}
+                onPress={() => {
+                  closeSidebar();
+                  navigation.navigate('IndexHistorial');
+                }}
+              >
+                <Text style={styles.historyText}>Ver Historial</Text>
+              </TouchableOpacity>
 
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={styles.logoutBtn}
                 onPress={handleLogout}
               >
@@ -161,15 +171,15 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
   },
-  title: { 
-    color: '#fff', 
-    fontSize: 22, 
-    marginBottom: 20, 
+  title: {
+    color: '#fff',
+    fontSize: 22,
+    marginBottom: 20,
     marginTop: 20,
     fontWeight: 'bold',
   },
-  text: { 
-    color: '#fff', 
+  text: {
+    color: '#fff',
     marginBottom: 12,
     fontSize: 16,
   },
@@ -184,6 +194,13 @@ const styles = StyleSheet.create({
     color: '#0beb03ff',
     fontWeight: 'bold',
   },
+  historyBtn: {
+    marginTop: 16,
+    padding: 12,
+    backgroundColor: '#444',
+    borderRadius: 8,
+    alignItems: 'center',
+  },
   logoutBtn: {
     marginTop: 16,
     padding: 12,
@@ -192,6 +209,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   logoutText: {
+    color: '#fff',
+    fontWeight: 'bold',
+  },
+  historyText: {
     color: '#fff',
     fontWeight: 'bold',
   },
