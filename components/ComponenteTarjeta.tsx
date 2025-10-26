@@ -4,7 +4,7 @@ import { View, Text, Image, StyleSheet, TouchableOpacity, TextInput, Modal, View
 interface CardProps {
   title: string;
   description?: string;
-  price?: number;
+  observacion?: string;
   image?: string;
   onPress?: () => void;
   style?: ViewStyle;
@@ -15,6 +15,7 @@ interface CardProps {
 const ComponenteTarjeta: React.FC<CardProps> = ({
   title,
   description,
+  observacion,
   image,
   onPress,
   style,
@@ -42,6 +43,7 @@ const ComponenteTarjeta: React.FC<CardProps> = ({
       <View style={styles.infoContainer}>
         <Text style={styles.title}>{title}</Text>
         {description && <Text style={styles.description}>{description}</Text>}
+        {observacion && <Text style={styles.description}>Observaciones: {observacion}</Text>}
         {actionLabel && (
           <TouchableOpacity
             onPress={handleActionPress} // ← MODIFICADO

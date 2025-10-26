@@ -27,16 +27,19 @@ const IndexHistorial: React.FC = () => {
   // hardcodeo de historial de pedidos
   const historial = [
     {
-      title: 'Pedido #1',
+      title: 'lunes',
       description: 'Hamburguesa Clásica + Papas Rústicas',
+      observacion: 'sin leche humana',
     },
     {
-      title: 'Pedido #2',
+      title: 'martes',
       description: 'Milkshake de Vainilla',
+      observacion: 'sin leche humana',
     },
     {
-      title: 'Pedido #3',
+      title: 'miercoles',
       description: 'Hamburguesa Clásica + Milkshake de Vainilla',
+      observacion: 'sin leche humana',
     },
   ];
 
@@ -67,7 +70,7 @@ const IndexHistorial: React.FC = () => {
             key={index}
             title={item.title}
             description={item.description}
-            actionLabel="Detalles"
+            observacion={item.observacion}
             onActionPress={() => Alert.alert('Historial', item.title)}
           />
         ))}

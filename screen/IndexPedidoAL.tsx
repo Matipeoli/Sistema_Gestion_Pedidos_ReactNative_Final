@@ -91,7 +91,6 @@ const IndexPedidoAL: React.FC = () => {
             title={tarjeta.title}
             description={tarjeta.description}
             image={tarjeta.image}
-            actionLabel="Observaciones"
             onActionPress={() => Alert.alert('Detalles', tarjeta.title)}
           />
         ))}
