@@ -6,8 +6,9 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 type RootStackParamList = {
-  AdminScreen: undefined;
-  UserScreen: undefined;
+  Registro: undefined;
+  IndexMainUs: undefined; 
+  IndexPedidoAL: undefined;
 };
 
 const LoginScreen: React.FC = () => {
@@ -18,27 +19,50 @@ const LoginScreen: React.FC = () => {
 
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
+  const handleEmailChange = (text: string) => {
+    setEmail(text);
+    if (emailError) setEmailError('');
+  };
+
+  const handlePasswordChange = (text: string) => {
+    setPassword(text);
+    if (passwordError) setPasswordError('');
+  };
+
   const handleLogin = () => {
     let valid = true;
-// Validacion del login(email y contraseña)
+
+    // Validación del email
     if (!email) {
       setEmailError('Ingrese un email');
       valid = false;
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       setEmailError('Email inválido');
       valid = false;
-    } else setEmailError('');
+    } else {
+      setEmailError('');
+    }
 
+    // Validación de la contraseña
     if (!password) {
       setPasswordError('Ingrese contraseña');
       valid = false;
-    } 
+    } else {
+      setPasswordError('');
+    }
 
     if (!valid) return;
-//hardcodeo de roles admin y user
-    const rol = email === 'admin@ejemplo.com' ? 'admin' : 'user';
-    if (rol === 'admin') navigation.navigate('AdminScreen');
-    else navigation.navigate('UserScreen');
+
+    // LÓGICA HARDCODEADA DE ROLES
+    // Admin: admin@ejemplo.com / Cualquier contraseña
+    // Usuario normal: cualquier otro email válido
+    
+    if (email === 'admin@ejemplo.com') {
+      navigation.navigate('IndexPedidoAL');
+    } else {
+      // TODOS LOS USUARIOS NORMALES VAN AL MAIN
+      navigation.navigate('IndexMainUs');
+    }
   };
 
   return (
@@ -47,9 +71,9 @@ const LoginScreen: React.FC = () => {
         <Text style={styles.title}>i2TASTE</Text>
 
         <ComponenteTexto
-          placeholder="Usuario"
+          placeholder="Email"
           value={email}
-          onChangeText={setEmail}
+          onChangeText={handleEmailChange}
           keyboardType="email-address"
         />
         {emailError ? <Text style={styles.error}>{emailError}</Text> : null}
@@ -57,16 +81,23 @@ const LoginScreen: React.FC = () => {
         <ComponenteTexto
           placeholder="Contraseña"
           value={password}
-          onChangeText={setPassword}
+          onChangeText={handlePasswordChange}
           secureTextEntry
         />
         {passwordError ? <Text style={styles.error}>{passwordError}</Text> : null}
 
         <ComponenteBoton title="Ingresar" onPress={handleLogin} />
 
-        <TouchableOpacity onPress={() => console.log('Ir a registro')}>
-          <Text style={styles.link}>¿No tenes cuenta? Regístrate</Text>
+        <TouchableOpacity onPress={() => navigation.navigate('Registro')}>
+          <Text style={styles.link}>¿No tienes cuenta? Regístrate</Text>
         </TouchableOpacity>
+
+        {/* AYUDA VISUAL PARA TESTING */}
+        <View style={styles.testInfo}>
+          <Text style={styles.testText}>Usuarios de prueba:</Text>
+          <Text style={styles.testText}>Admin: admin@ejemplo.com</Text>
+          <Text style={styles.testText}>Usuario: cualquier@email.com</Text>
+        </View>
       </View>
     </View>
   );
@@ -84,7 +115,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#1e1e1e',
     padding: 20,
     borderRadius: 12,
-    shadowColor: '#000000ff',
+    shadowColor: '#000000',
     shadowOpacity: 0.3,
     shadowRadius: 10,
     elevation: 10,
@@ -100,11 +131,25 @@ const styles = StyleSheet.create({
     color: '#ff4d4d',
     marginBottom: 8,
     marginLeft: 12,
+    fontSize: 12,
   },
   link: {
     color: '#0fbd0f',
     textAlign: 'center',
     marginTop: 15,
+  },
+  testInfo: {
+    marginTop: 20,
+    padding: 12,
+    backgroundColor: '#2a2a2a',
+    borderRadius: 8,
+    borderLeftWidth: 3,
+    borderLeftColor: '#0fbd0f',
+  },
+  testText: {
+    color: '#999',
+    fontSize: 12,
+    marginVertical: 2,
   },
 });
 

@@ -8,7 +8,8 @@ interface CardProps {
   image?: string;
   onPress?: () => void;
   style?: ViewStyle;
-  actionLabel?: string; 
+  actionLabel?: string;
+  onActionPress?: () => void; 
 }
 
 const ComponenteTarjeta: React.FC<CardProps> = ({
@@ -18,9 +19,17 @@ const ComponenteTarjeta: React.FC<CardProps> = ({
   onPress,
   style,
   actionLabel,
+  onActionPress, 
 }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [text, setText] = useState('');
+
+  const handleActionPress = () => {
+    if (onActionPress) {
+      onActionPress(); // Ejecuta la acción personalizada
+    }
+    setModalVisible(true); // Abre el modal
+  };
 
   return (
     <TouchableOpacity
@@ -35,7 +44,7 @@ const ComponenteTarjeta: React.FC<CardProps> = ({
         {description && <Text style={styles.description}>{description}</Text>}
         {actionLabel && (
           <TouchableOpacity
-            onPress={() => setModalVisible(true)} // abre modal
+            onPress={handleActionPress} // ← MODIFICADO
             style={styles.actionButton}
           >
             <Text style={styles.actionText}>{actionLabel}</Text>
@@ -56,11 +65,17 @@ const ComponenteTarjeta: React.FC<CardProps> = ({
             <TextInput
               style={styles.modalInput}
               placeholder="Escribe tus observaciones..."
+              placeholderTextColor="#999"
               value={text}
               onChangeText={setText}
               multiline
             />
-            <Button title="Cerrar" onPress={() => setModalVisible(false)} />
+            <TouchableOpacity 
+              style={styles.closeButton}
+              onPress={() => setModalVisible(false)}
+            >
+              <Text style={styles.closeButtonText}>Cerrar</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </Modal>
@@ -111,9 +126,21 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: 10,
     color: '#fff',
+    backgroundColor: '#444',
     height: 100,
     marginBottom: 10,
     textAlignVertical: 'top',
+  },
+  closeButton: {
+    backgroundColor: '#22c55e',
+    borderRadius: 8,
+    paddingVertical: 12,
+    alignItems: 'center',
+  },
+  closeButtonText: {
+    color: '#000',
+    fontWeight: 'bold',
+    fontSize: 16,
   },
 });
 

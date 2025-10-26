@@ -1,11 +1,28 @@
 import * as React from 'react';
 import { View, Text, Image, TouchableOpacity, Modal, StyleSheet, ScrollView, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import ComponenteTarjeta from '../components/ComponenteTarjeta';
+
+type RootStackParamList = {
+  LoginScreen: undefined;
+  IndexMainUs: undefined;
+};
 
 const IndexMainUs: React.FC = () => {
   const [visible, setVisible] = React.useState(false);
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+
+  const closeSidebar = () => setVisible(false);
+
+  const handleLogout = () => {
+    closeSidebar();
+    // Resetea el stack de navegación para que no pueda volver atrás
+    navigation.reset({
+      index: 0,
+      routes: [{ name: 'LoginScreen' }],
+    });
+  };
 
   return (
     <View style={styles.container}>
@@ -33,7 +50,7 @@ const IndexMainUs: React.FC = () => {
           title="Hamburguesa Clásica"
           description="Pan artesanal, carne de res, lechuga, tomate y queso cheddar."
           image="https://images.unsplash.com/photo-1550547660-d9450f859349"
-          actionLabel="Ver Detalles"
+          actionLabel="Observaciones"
           onActionPress={() => Alert.alert('Detalles', 'Hamburguesa Clásica')}
         />
 
@@ -41,7 +58,7 @@ const IndexMainUs: React.FC = () => {
           title="Papas Rústicas"
           description="Corte grueso, condimento especial y cocción crocante."
           image="https://images.unsplash.com/photo-1606756790138-8c3f01a1d9b5"
-          actionLabel="Agregar al pedido"
+          actionLabel="Observaciones"
           onActionPress={() => Alert.alert('Pedido', 'Papas Rústicas agregadas.')}
         />
 
@@ -49,21 +66,47 @@ const IndexMainUs: React.FC = () => {
           title="Milkshake de Vainilla"
           description="Helado artesanal con crema y jarabe de vainilla natural."
           image="https://images.unsplash.com/photo-1565958011705-44e211f59e30"
-          actionLabel="Ver Más"
-          onActionPress={() => navigation.navigate('AnotherScreen')}
+          actionLabel="Observaciones"
+          onActionPress={() => Alert.alert('Info', 'Milkshake de Vainilla')}
         />
       </ScrollView>
 
       {/* SIDEBAR (PERFIL) */}
       <Modal visible={visible} transparent animationType="slide">
-        <View style={styles.sidebar}>
-          <Text style={styles.title}>Perfil de Usuario</Text>
-          <Text style={styles.text}>Nombre y Apellido: Juan Pérez</Text>
-          <Text style={styles.text}>Correo: juan.perez@example.com</Text>
-          <TouchableOpacity onPress={() => Alert.alert('Recuperar Contraseña')}>
-            <Text style={[styles.text, { color: 'skyblue' }]}>Recuperar Contraseña</Text>
+        <TouchableOpacity 
+          style={styles.modalOverlay} 
+          activeOpacity={1} 
+          onPress={closeSidebar}
+        >
+          <TouchableOpacity activeOpacity={1} onPress={(e) => e.stopPropagation()}>
+            <View style={styles.sidebar}>
+              <TouchableOpacity style={styles.closeBtn} onPress={closeSidebar}>
+                <Text style={styles.closeText}>✕</Text>
+              </TouchableOpacity>
+
+              <Text style={styles.title}>Perfil de Usuario</Text>
+              <Text style={styles.text}>Nombre: Juan Pérez</Text>
+              <Text style={styles.text}>Email: juan.perez@example.com</Text>
+              
+              <TouchableOpacity 
+                style={styles.recoverBtn}
+                onPress={() => {
+                  closeSidebar();
+                  Alert.alert('Recuperar Contraseña', 'Funcionalidad en desarrollo');
+                }}
+              >
+                <Text style={styles.recoverText}>Recuperar Contraseña</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity 
+                style={styles.logoutBtn}
+                onPress={handleLogout}
+              >
+                <Text style={styles.logoutText}>Cerrar Sesión</Text>
+              </TouchableOpacity>
+            </View>
           </TouchableOpacity>
-        </View>
+        </TouchableOpacity>
       </Modal>
     </View>
   );
@@ -88,13 +131,68 @@ const styles = StyleSheet.create({
   bar: { width: 20, height: 2, backgroundColor: '#fff', marginVertical: 2 },
   scrollContainer: {
     padding: 16,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    paddingHorizontal: 12,
+    paddingTop: 20,
+    backgroundColor: '#121212',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.7)',
+    justifyContent: 'flex-end',
   },
   sidebar: {
     backgroundColor: '#333',
-    flex: 1,
     padding: 24,
-    justifyContent: 'center',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    minHeight: 350,
   },
-  title: { color: '#fff', fontSize: 20, marginBottom: 16 },
-  text: { color: '#fff', marginBottom: 8 },
+  closeBtn: {
+    position: 'absolute',
+    top: 16,
+    right: 16,
+    zIndex: 10,
+  },
+  closeText: {
+    color: '#fff',
+    fontSize: 24,
+    fontWeight: 'bold',
+  },
+  title: { 
+    color: '#fff', 
+    fontSize: 22, 
+    marginBottom: 20, 
+    marginTop: 20,
+    fontWeight: 'bold',
+  },
+  text: { 
+    color: '#fff', 
+    marginBottom: 12,
+    fontSize: 16,
+  },
+  recoverBtn: {
+    marginTop: 16,
+    padding: 12,
+    backgroundColor: '#444',
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  recoverText: {
+    color: '#0beb03ff',
+    fontWeight: 'bold',
+  },
+  logoutBtn: {
+    marginTop: 16,
+    padding: 12,
+    backgroundColor: '#ff4444',
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  logoutText: {
+    color: '#fff',
+    fontWeight: 'bold',
+  },
 });
