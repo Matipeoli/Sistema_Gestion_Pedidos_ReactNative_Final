@@ -38,8 +38,14 @@ const ComponenteTarjeta: React.FC<CardProps> = ({
       {image && <Image source={{ uri: image }} style={styles.image} />}
 
       <View style={styles.infoContainer}>
-        <Text style={styles.title}>{title}</Text>
-        {description && <Text style={styles.description}>{description}</Text>}
+        <View style={styles.textContainer}>
+          <Text style={styles.title} numberOfLines={2}>{title}</Text>
+          {description && (
+            <Text style={styles.description} numberOfLines={2}>
+              {description}
+            </Text>
+          )}
+        </View>
         {actionLabel && (
           <TouchableOpacity
             onPress={handleActionPress}
@@ -87,8 +93,7 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     overflow: 'hidden',
     marginVertical: 8,
-    width: '47%', // ✅ dos tarjetas por fila
-    aspectRatio: 1, // ✅ cuadradas
+    width: '47%',
     elevation: 6,
     shadowColor: '#000',
     shadowOpacity: 0.4,
@@ -97,63 +102,79 @@ const styles = StyleSheet.create({
   },
   image: {
     width: '100%',
-    height: '60%',
+    height: 140, // ← Altura fija en lugar de porcentaje
     borderTopLeftRadius: 18,
     borderTopRightRadius: 18,
   },
   infoContainer: { 
-    padding: 10, 
-    justifyContent: 'space-between', 
-    flex: 1 
+    padding: 12,
+    paddingTop: 10,
+    justifyContent: 'space-between',
+    minHeight: 120, // ← Altura mínima consistente
+  },
+  textContainer: {
+    flex: 1,
+    marginBottom: 8,
   },
   title: { 
     color: '#fff', 
-    fontSize: 16, 
+    fontSize: 15, 
     fontWeight: 'bold', 
-    textAlign: 'center' 
+    textAlign: 'center',
+    marginBottom: 4,
   },
   description: { 
     color: 'rgba(255,255,255,0.7)', 
     fontSize: 12, 
-    textAlign: 'center', 
-    marginTop: 4 
+    textAlign: 'center',
+    lineHeight: 16,
   },
   actionButton: {
     backgroundColor: '#22c55e',
     borderRadius: 10,
-    paddingVertical: 6,
+    paddingVertical: 8,
     alignItems: 'center',
-    marginTop: 10,
   },
-  actionText: { color: '#000', fontWeight: '600' },
+  actionText: { 
+    color: '#000', 
+    fontWeight: '600',
+    fontSize: 13,
+  },
   modalBackground: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    backgroundColor: 'rgba(0,0,0,0.7)',
     justifyContent: 'center',
     alignItems: 'center',
   },
   modalContainer: {
-    width: '80%',
-    backgroundColor: '#333',
+    width: '85%',
+    backgroundColor: '#2a2a2a',
     borderRadius: 16,
-    padding: 20,
+    padding: 24,
   },
-  modalTitle: { color: '#fff', fontSize: 18, marginBottom: 10, fontWeight: 'bold' },
+  modalTitle: { 
+    color: '#fff', 
+    fontSize: 20, 
+    marginBottom: 16, 
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
   modalInput: {
     borderWidth: 1,
     borderColor: '#22c55e',
     borderRadius: 8,
-    padding: 10,
+    padding: 12,
     color: '#fff',
-    backgroundColor: '#444',
-    height: 100,
-    marginBottom: 10,
+    backgroundColor: '#333',
+    height: 120,
+    marginBottom: 16,
     textAlignVertical: 'top',
+    fontSize: 15,
   },
   closeButton: {
     backgroundColor: '#22c55e',
     borderRadius: 8,
-    paddingVertical: 12,
+    paddingVertical: 14,
     alignItems: 'center',
   },
   closeButtonText: {
