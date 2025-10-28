@@ -81,7 +81,7 @@ const Registro: React.FC = () => {
     setErrores(nuevosErrores);
     if (!valid) return;
 
-    // Registro exitoso (por ahora sin backend)
+    // registro exitoso (por ahora sin backend)
     Alert.alert('Registro exitoso', 'Ahora puedes iniciar sesión');
     console.log('Registro:', usuario);
     navigation.navigate('LoginScreen');

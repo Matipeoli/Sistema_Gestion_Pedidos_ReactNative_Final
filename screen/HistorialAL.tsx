@@ -1,46 +1,28 @@
-import * as React from 'react';
+import React, { useState } from 'react';
 import { View, Text, Image, TouchableOpacity, Modal, StyleSheet, ScrollView, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import ComponenteTarjeta from '../components/ComponenteTarjeta';
+import ComponenteBoton from '../components/ComponenteBoton';
 
 type RootStackParamList = {
-  LoginScreen: undefined;
-  IndexMainUs: undefined;
-  HistorialAL: undefined;
+  IndexPedidoAL: undefined;
 };
 
-interface TarjetaData {
-  id: number;
-  title: string;
-  description: string;
-  image?: string;
-}
-
-const IndexPedidoAL: React.FC = () => {
-  const [visible, setVisible] = React.useState(false);
-  const [tarjetas, setTarjetas] = React.useState<TarjetaData[]>([
-    {
-      id: 1,
-      title: 'Hamburguesa Clásica',
-      description: 'Pan artesanal, carne de res, lechuga, tomate y queso cheddar.',
-      image: 'https://images.unsplash.com/photo-1550547660-d9450f859349',
-    },
-    {
-      id: 2,
-      title: 'Papas Rústicas',
-      description: 'Corte grueso, condimento especial y cocción crocante.',
-      image: 'https://images.unsplash.com/photo-1606756790138-8c3f01a1d9b5',
-    },
-    {
-      id: 3,
-      title: 'Milkshake de Vainilla',
-      description: 'Helado artesanal con crema y jarabe de vainilla natural.',
-      image: 'https://images.unsplash.com/photo-1565958011705-44e211f59e30',
-    },
-  ]);
-
+const HistorialAL: React.FC = () => {
+  const [visible, setVisible] = useState(false);
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+
+  const pedidos = [
+    { nombre: 'Hamburguesa Clásica', observaciones: 'Sin cebolla', cantidad: 2 },
+    { nombre: 'Papas Rústicas', observaciones: 'Con cheddar', cantidad: 1 },
+    { nombre: 'Milkshake de Vainilla', observaciones: 'Sin crema', cantidad: 1 },
+  ];
+
+  const fechaActual = new Date().toLocaleDateString('es-AR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  });
 
   const closeSidebar = () => setVisible(false);
 
@@ -50,18 +32,6 @@ const IndexPedidoAL: React.FC = () => {
       index: 0,
       routes: [{ name: 'LoginScreen' }],
     });
-  };
-
-  //agrega nueva tarjeta
-  const agregarTarjeta = () => {
-    const nuevaId = tarjetas.length + 1;
-    const nuevaTarjeta: TarjetaData = {
-      id: nuevaId,
-      title: `Nuevo Producto ${nuevaId}`,
-      description: 'Descripción nueva del producto.',
-      image: 'https://images.unsplash.com/photo-1604152135912-04a1820d9c3e',
-    };
-    setTarjetas([...tarjetas, nuevaTarjeta]);
   };
 
   return (
@@ -84,55 +54,63 @@ const IndexPedidoAL: React.FC = () => {
         </View>
       </View>
 
-      {/* scroll de tarjetas */}
+      {/* contenido principal */}
       <ScrollView contentContainerStyle={styles.scrollContainer}>
-        {tarjetas.map((tarjeta) => (
-          <ComponenteTarjeta
-            key={tarjeta.id}
-            title={tarjeta.title}
-            description={tarjeta.description}
-            image={tarjeta.image}
-            onActionPress={() => Alert.alert('Detalles', tarjeta.title)}
-          />
-        ))}
+        <View style={styles.card}>
+          <View style={styles.tableHeader}>
+            <Text style={styles.title}>PEDIDOS</Text>
+            <Text style={styles.date}>{fechaActual}</Text>
+          </View>
 
-        {/* boton que agrega nuevas tarjetas */}
-        <TouchableOpacity style={styles.botonAgregar} onPress={agregarTarjeta}>
-          <Text style={styles.botonTexto}>+</Text>
-        </TouchableOpacity>
+          {/* Encabezados de columnas */}
+          <View style={styles.rowHeader}>
+            <Text style={[styles.cell, styles.cellHeader]}>Nombre</Text>
+            <Text style={[styles.cell, styles.cellHeader]}>Observaciones</Text>
+            <Text style={[styles.cell, styles.cellHeader]}>Cantidad</Text>
+          </View>
+
+          {/* Filas de pedidos */}
+          {pedidos.map((pedido, index) => (
+            <View key={index} style={styles.row}>
+              <Text style={styles.cell}>{pedido.nombre}</Text>
+              <Text style={styles.cell}>{pedido.observaciones}</Text>
+              <Text style={styles.cell}>{pedido.cantidad}</Text>
+            </View>
+          ))}
+
+          {/* Botón para simular actualización */}
+          <ComponenteBoton
+            title="Actualizar"
+            onPress={() => Alert.alert('Actualizar', 'Pedidos actualizados')}
+          />
+        </View>
       </ScrollView>
 
-      {/* menu hamburguesa */}
+      {/* menú hamburguesa */}
       <Modal visible={visible} transparent animationType="slide">
-        <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={closeSidebar}>
+        <TouchableOpacity
+          style={styles.modalOverlay}
+          activeOpacity={1}
+          onPress={closeSidebar}
+        >
           <TouchableOpacity activeOpacity={1} onPress={(e) => e.stopPropagation()}>
             <View style={styles.sidebar}>
               <TouchableOpacity style={styles.closeBtn} onPress={closeSidebar}>
                 <Text style={styles.closeText}>✕</Text>
               </TouchableOpacity>
 
-              <Text style={styles.title}>Perfil de Usuario</Text>
+              <Text style={styles.titleSidebar}>Perfil de Usuario</Text>
               <Text style={styles.text}>Nombre: Juan Pérez</Text>
               <Text style={styles.text}>Email: juan.perez@example.com</Text>
 
               <TouchableOpacity
-                style={styles.recoverBtn}
+                style={styles.historyBtn}
                 onPress={() => {
                   closeSidebar();
-                  Alert.alert('Recuperar Contraseña', 'Funcionalidad en desarrollo');
+                  navigation.navigate('IndexHistorial');
                 }}
               >
-                <Text style={styles.recoverText}>Recuperar Contraseña</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={styles.recoverBtn}
-                onPress={() => {
-                  closeSidebar();
-                  navigation.navigate('HistorialAL');
-                }}
-              >
-                <Text style={styles.recoverText}>Ver cantidad de pedidos</Text>
+                <Text style={styles.historyText}>Ver Historial</Text>
               </TouchableOpacity>
 
               <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
@@ -145,6 +123,7 @@ const IndexPedidoAL: React.FC = () => {
     </View>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#111' },
@@ -161,30 +140,46 @@ const styles = StyleSheet.create({
   avatar: { width: 32, height: 32, borderRadius: 16 },
   menuBtn: { marginLeft: 10 },
   bar: { width: 20, height: 2, backgroundColor: '#fff', marginVertical: 2 },
+
   scrollContainer: {
-    padding: 16,
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    paddingHorizontal: 12,
-    paddingTop: 20,
+    flexGrow: 1,
     backgroundColor: '#121212',
-  },
-  botonAgregar: {
-    backgroundColor: '#0beb03ff',
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    justifyContent: 'center',
     alignItems: 'center',
-    marginVertical: 25,
-    alignSelf: 'center',
+    paddingVertical: 20,
   },
-  botonTexto: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: '#000',
+  card: {
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 20,
+    width: '90%',
+    shadowColor: '#000',
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 5,
   },
+  tableHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 12,
+  },
+  title: { fontSize: 20, fontWeight: 'bold', textDecorationLine: 'underline' },
+  date: { fontSize: 16, textDecorationLine: 'underline' },
+  rowHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    borderBottomWidth: 1,
+    borderColor: '#ddd',
+    paddingBottom: 6,
+    marginBottom: 6,
+  },
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 4,
+  },
+  cell: { width: '33%', textAlign: 'left', fontSize: 14, color: '#000' },
+  cellHeader: { fontWeight: 'bold' },
+
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.7)',
@@ -197,14 +192,9 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 20,
     minHeight: 350,
   },
-  closeBtn: {
-    position: 'absolute',
-    top: 16,
-    right: 16,
-    zIndex: 10,
-  },
+  closeBtn: { position: 'absolute', top: 16, right: 16, zIndex: 10 },
   closeText: { color: '#fff', fontSize: 24, fontWeight: 'bold' },
-  title: {
+  titleSidebar: {
     color: '#fff',
     fontSize: 22,
     marginBottom: 20,
@@ -212,14 +202,14 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   text: { color: '#fff', marginBottom: 12, fontSize: 16 },
-  recoverBtn: {
+  historyBtn: {
     marginTop: 16,
     padding: 12,
     backgroundColor: '#444',
     borderRadius: 8,
     alignItems: 'center',
   },
-  recoverText: { color: '#0beb03ff', fontWeight: 'bold' },
+  historyText: { color: '#fff', fontWeight: 'bold' },
   logoutBtn: {
     marginTop: 16,
     padding: 12,
@@ -230,4 +220,5 @@ const styles = StyleSheet.create({
   logoutText: { color: '#fff', fontWeight: 'bold' },
 });
 
-export default IndexPedidoAL;
+
+export default HistorialAL;
