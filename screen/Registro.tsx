@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Text, TouchableOpacity, ScrollView } from 'react-native';
+import { View, StyleSheet, Text, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import ComponenteTexto from '../components/ComponenteTexto';
 import ComponenteBoton from '../components/ComponenteBoton';
 import { useNavigation } from '@react-navigation/native';
@@ -9,92 +9,81 @@ type RootStackParamList = {
   LoginScreen: undefined;
 };
 
+interface UsuarioRegistro {
+  nombre: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+}
+
 const Registro: React.FC = () => {
-  const [nombre, setNombre] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  
-  const [nombreError, setNombreError] = useState('');
-  const [emailError, setEmailError] = useState('');
-  const [passwordError, setPasswordError] = useState('');
-  const [confirmPasswordError, setConfirmPasswordError] = useState('');
+  //un solo objeto usuario (igual que en LoginScreen)
+  const [usuario, setUsuario] = useState<UsuarioRegistro>({
+    nombre: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+  });
+
+  // errores por campo
+  const [errores, setErrores] = useState({
+    nombre: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+  });
 
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
-  const handleNombreChange = (text: string) => {
-    setNombre(text);
-    if (nombreError) setNombreError('');
-  };
-
-  const handleEmailChange = (text: string) => {
-    setEmail(text);
-    if (emailError) setEmailError('');
-  };
-
-  const handlePasswordChange = (text: string) => {
-    setPassword(text);
-    if (passwordError) setPasswordError('');
-  };
-
-  const handleConfirmPasswordChange = (text: string) => {
-    setConfirmPassword(text);
-    if (confirmPasswordError) setConfirmPasswordError('');
+  //handlers dinámicos
+  const handleChange = (campo: keyof UsuarioRegistro, valor: string) => {
+    setUsuario({ ...usuario, [campo]: valor });
+    if (errores[campo]) setErrores({ ...errores, [campo]: '' });
   };
 
   const handleRegister = () => {
     let valid = true;
+    const nuevosErrores = { nombre: '', email: '', password: '', confirmPassword: '' };
 
-    // Validación del nombre
-    if (!nombre) {
-      setNombreError('Ingrese un nombre');
+    // Validaciones
+    if (!usuario.nombre) {
+      nuevosErrores.nombre = 'Ingrese un nombre';
       valid = false;
-    } else if (nombre.length < 3) {
-      setNombreError('El nombre debe tener al menos 3 caracteres');
+    } else if (usuario.nombre.length < 3) {
+      nuevosErrores.nombre = 'El nombre debe tener al menos 3 caracteres';
       valid = false;
-    } else {
-      setNombreError('');
     }
 
-    // Validación del email
-    if (!email) {
-      setEmailError('Ingrese un email');
+    if (!usuario.email) {
+      nuevosErrores.email = 'Ingrese un email';
       valid = false;
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setEmailError('Email inválido');
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(usuario.email)) {
+      nuevosErrores.email = 'Email inválido';
       valid = false;
-    } else {
-      setEmailError('');
     }
 
-    // Validación de la contraseña
-    if (!password) {
-      setPasswordError('Ingrese una contraseña');
+    if (!usuario.password) {
+      nuevosErrores.password = 'Ingrese una contraseña';
       valid = false;
-    } else if (password.length < 6) {
-      setPasswordError('La contraseña debe tener al menos 6 caracteres');
+    } else if (usuario.password.length < 6) {
+      nuevosErrores.password = 'Debe tener al menos 6 caracteres';
       valid = false;
-    } else {
-      setPasswordError('');
     }
 
-    // Validación de confirmación de contraseña
-    if (!confirmPassword) {
-      setConfirmPasswordError('Confirme su contraseña');
+    if (!usuario.confirmPassword) {
+      nuevosErrores.confirmPassword = 'Confirme su contraseña';
       valid = false;
-    } else if (password !== confirmPassword) {
-      setConfirmPasswordError('Las contraseñas no coinciden');
+    } else if (usuario.password !== usuario.confirmPassword) {
+      nuevosErrores.confirmPassword = 'Las contraseñas no coinciden';
       valid = false;
-    } else {
-      setConfirmPasswordError('');
     }
 
+    setErrores(nuevosErrores);
     if (!valid) return;
 
-    
-    // Por ahora, solo navegamos de vuelta al login
-    console.log('Registro exitoso:', { nombre, email, password });
-    alert('¡Registro exitoso! Ahora puedes iniciar sesión');
+    // Registro exitoso (por ahora sin backend)
+    Alert.alert('Registro exitoso', 'Ahora puedes iniciar sesión');
+    console.log('Registro:', usuario);
     navigation.navigate('LoginScreen');
   };
 
@@ -107,34 +96,34 @@ const Registro: React.FC = () => {
 
           <ComponenteTexto
             placeholder="Nombre completo"
-            value={nombre}
-            onChangeText={handleNombreChange}
+            value={usuario.nombre}
+            onChangeText={(text) => handleChange('nombre', text)}
           />
-          {nombreError ? <Text style={styles.error}>{nombreError}</Text> : null}
+          {errores.nombre ? <Text style={styles.error}>{errores.nombre}</Text> : null}
 
           <ComponenteTexto
             placeholder="Email"
-            value={email}
-            onChangeText={handleEmailChange}
+            value={usuario.email}
+            onChangeText={(text) => handleChange('email', text)}
             keyboardType="email-address"
           />
-          {emailError ? <Text style={styles.error}>{emailError}</Text> : null}
+          {errores.email ? <Text style={styles.error}>{errores.email}</Text> : null}
 
           <ComponenteTexto
             placeholder="Contraseña"
-            value={password}
-            onChangeText={handlePasswordChange}
+            value={usuario.password}
+            onChangeText={(text) => handleChange('password', text)}
             secureTextEntry
           />
-          {passwordError ? <Text style={styles.error}>{passwordError}</Text> : null}
+          {errores.password ? <Text style={styles.error}>{errores.password}</Text> : null}
 
           <ComponenteTexto
             placeholder="Confirmar contraseña"
-            value={confirmPassword}
-            onChangeText={handleConfirmPasswordChange}
+            value={usuario.confirmPassword}
+            onChangeText={(text) => handleChange('confirmPassword', text)}
             secureTextEntry
           />
-          {confirmPasswordError ? <Text style={styles.error}>{confirmPasswordError}</Text> : null}
+          {errores.confirmPassword ? <Text style={styles.error}>{errores.confirmPassword}</Text> : null}
 
           <ComponenteBoton title="Registrarse" onPress={handleRegister} />
 
@@ -148,9 +137,7 @@ const Registro: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
-  scrollContainer: {
-    flexGrow: 1,
-  },
+  scrollContainer: { flexGrow: 1 },
   container: {
     flex: 1,
     backgroundColor: '#121212',

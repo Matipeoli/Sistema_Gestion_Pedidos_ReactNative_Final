@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity, TextInput, Modal, ViewStyle, Button } from 'react-native';
+import { View, Text, Image, StyleSheet, TouchableOpacity, TextInput, Modal, ViewStyle } from 'react-native';
 
 interface CardProps {
   title: string;
@@ -9,27 +9,24 @@ interface CardProps {
   onPress?: () => void;
   style?: ViewStyle;
   actionLabel?: string;
-  onActionPress?: () => void; 
+  onActionPress?: () => void;
 }
 
 const ComponenteTarjeta: React.FC<CardProps> = ({
   title,
   description,
-  observacion,
   image,
   onPress,
   style,
   actionLabel,
-  onActionPress, 
+  onActionPress,
 }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [text, setText] = useState('');
 
   const handleActionPress = () => {
-    if (onActionPress) {
-      onActionPress(); // Ejecuta la acción personalizada
-    }
-    setModalVisible(true); // Abre el modal
+    if (onActionPress) onActionPress();
+    setModalVisible(true);
   };
 
   return (
@@ -43,10 +40,9 @@ const ComponenteTarjeta: React.FC<CardProps> = ({
       <View style={styles.infoContainer}>
         <Text style={styles.title}>{title}</Text>
         {description && <Text style={styles.description}>{description}</Text>}
-        {observacion && <Text style={styles.description}>Observaciones: {observacion}</Text>}
         {actionLabel && (
           <TouchableOpacity
-            onPress={handleActionPress} // ← MODIFICADO
+            onPress={handleActionPress}
             style={styles.actionButton}
           >
             <Text style={styles.actionText}>{actionLabel}</Text>
@@ -87,24 +83,45 @@ const ComponenteTarjeta: React.FC<CardProps> = ({
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: '#222',
-    borderRadius: 16,
+    backgroundColor: '#1f1f1f',
+    borderRadius: 18,
     overflow: 'hidden',
-    marginVertical: 10,
-    elevation: 5,
+    marginVertical: 8,
+    width: '47%', // ✅ dos tarjetas por fila
+    aspectRatio: 1, // ✅ cuadradas
+    elevation: 6,
     shadowColor: '#000',
-    shadowOpacity: 0.3,
+    shadowOpacity: 0.4,
     shadowRadius: 6,
     shadowOffset: { width: 0, height: 3 },
   },
-  image: { width: '100%', height: 160 },
-  infoContainer: { padding: 15 },
-  title: { color: '#fff', fontSize: 18, fontWeight: 'bold' },
-  description: { color: 'rgba(255,255,255,0.7)', marginVertical: 6 },
+  image: {
+    width: '100%',
+    height: '60%',
+    borderTopLeftRadius: 18,
+    borderTopRightRadius: 18,
+  },
+  infoContainer: { 
+    padding: 10, 
+    justifyContent: 'space-between', 
+    flex: 1 
+  },
+  title: { 
+    color: '#fff', 
+    fontSize: 16, 
+    fontWeight: 'bold', 
+    textAlign: 'center' 
+  },
+  description: { 
+    color: 'rgba(255,255,255,0.7)', 
+    fontSize: 12, 
+    textAlign: 'center', 
+    marginTop: 4 
+  },
   actionButton: {
     backgroundColor: '#22c55e',
-    borderRadius: 999,
-    paddingVertical: 10,
+    borderRadius: 10,
+    paddingVertical: 6,
     alignItems: 'center',
     marginTop: 10,
   },

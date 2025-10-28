@@ -11,40 +11,55 @@ type RootStackParamList = {
   IndexPedidoAL: undefined;
 };
 
+//interfaz para el usuario
+interface UsuarioRegistro {
+  nombre: string;
+  email: string;
+  password: string;
+}
+
 const LoginScreen: React.FC = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+
+  
+  const [usuario, setUsuario] = useState<UsuarioRegistro>({
+    nombre: '',
+    email: '',
+    password: '',
+  });
+
+  //mensajes de error
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
 
-  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-
+  //actualizar estado del usuario
   const handleEmailChange = (text: string) => {
-    setEmail(text);
+    setUsuario({ ...usuario, email: text });
     if (emailError) setEmailError('');
   };
 
   const handlePasswordChange = (text: string) => {
-    setPassword(text);
+    setUsuario({ ...usuario, password: text });
     if (passwordError) setPasswordError('');
   };
 
+  //validacion y navegaciion
   const handleLogin = () => {
     let valid = true;
 
-    // Validación del email
-    if (!email) {
+    //validacion del email
+    if (!usuario.email) {
       setEmailError('Ingrese un email');
       valid = false;
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(usuario.email)) {
       setEmailError('Email inválido');
       valid = false;
     } else {
       setEmailError('');
     }
 
-    // Validación de la contraseña
-    if (!password) {
+    //validacion de contraseña
+    if (!usuario.password) {
       setPasswordError('Ingrese contraseña');
       valid = false;
     } else {
@@ -53,14 +68,10 @@ const LoginScreen: React.FC = () => {
 
     if (!valid) return;
 
-    // LÓGICA HARDCODEADA DE ROLES
-    // Admin: admin@ejemplo.com / Cualquier contraseña
-    // Usuario normal: cualquier otro email válido
-    
-    if (email === 'admin@ejemplo.com') {
+    // HARDCODEO LOGICAL PARA NAVEGACION
+    if (usuario.email === 'admin@ejemplo.com') {
       navigation.navigate('IndexPedidoAL');
     } else {
-      // TODOS LOS USUARIOS NORMALES VAN AL MAIN
       navigation.navigate('IndexMainUs');
     }
   };
@@ -72,7 +83,7 @@ const LoginScreen: React.FC = () => {
 
         <ComponenteTexto
           placeholder="Email"
-          value={email}
+          value={usuario.email}
           onChangeText={handleEmailChange}
           keyboardType="email-address"
         />
@@ -80,7 +91,7 @@ const LoginScreen: React.FC = () => {
 
         <ComponenteTexto
           placeholder="Contraseña"
-          value={password}
+          value={usuario.password}
           onChangeText={handlePasswordChange}
           secureTextEntry
         />
@@ -92,7 +103,7 @@ const LoginScreen: React.FC = () => {
           <Text style={styles.link}>¿No tienes cuenta? Regístrate</Text>
         </TouchableOpacity>
 
-        {/* AYUDA VISUAL PARA TESTING */}
+        {/* Ayuda visual para testing */}
         <View style={styles.testInfo}>
           <Text style={styles.testText}>Usuarios de prueba:</Text>
           <Text style={styles.testText}>Admin: admin@ejemplo.com</Text>
@@ -102,6 +113,7 @@ const LoginScreen: React.FC = () => {
     </View>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {
@@ -115,7 +127,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#1e1e1e',
     padding: 20,
     borderRadius: 12,
-    shadowColor: '#000000',
+    shadowColor: '#000',
     shadowOpacity: 0.3,
     shadowRadius: 10,
     elevation: 10,
