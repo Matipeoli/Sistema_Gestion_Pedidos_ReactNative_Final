@@ -6,6 +6,7 @@ import ComponenteBoton from '../components/ComponenteBoton';
 
 type RootStackParamList = {
   IndexPedidoAL: undefined;
+  LoginScreen: undefined;
 };
 
 const HistorialAL: React.FC = () => {
@@ -62,14 +63,14 @@ const HistorialAL: React.FC = () => {
             <Text style={styles.date}>{fechaActual}</Text>
           </View>
 
-          {/* Encabezados de columnas */}
+          {/* encabezados de columnas */}
           <View style={styles.rowHeader}>
             <Text style={[styles.cell, styles.cellHeader]}>Nombre</Text>
             <Text style={[styles.cell, styles.cellHeader]}>Observaciones</Text>
             <Text style={[styles.cell, styles.cellHeader]}>Cantidad</Text>
           </View>
 
-          {/* Filas de pedidos */}
+          {/* filas de pedidos */}
           {pedidos.map((pedido, index) => (
             <View key={index} style={styles.row}>
               <Text style={styles.cell}>{pedido.nombre}</Text>
@@ -78,7 +79,7 @@ const HistorialAL: React.FC = () => {
             </View>
           ))}
 
-          {/* Botón para simular actualización */}
+          {/* boton para simular actualización */}
           <ComponenteBoton
             title="Actualizar"
             onPress={() => Alert.alert('Actualizar', 'Pedidos actualizados')}
@@ -107,10 +108,10 @@ const HistorialAL: React.FC = () => {
                 style={styles.historyBtn}
                 onPress={() => {
                   closeSidebar();
-                  navigation.navigate('IndexHistorial');
+                  navigation.navigate('IndexPedidoAL');
                 }}
               >
-                <Text style={styles.historyText}>Ver Historial</Text>
+                <Text style={styles.historyText}>Volver a la pantalla inicial</Text>
               </TouchableOpacity>
 
               <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
