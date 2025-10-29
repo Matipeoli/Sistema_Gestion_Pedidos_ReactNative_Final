@@ -12,12 +12,12 @@ const Stack = createNativeStackNavigator();
 const AppNavigator: React.FC = () => {
   return (
     <Stack.Navigator initialRouteName="Registro">
-      <Stack.Screen name="Registro" component={Registro}/>
-      <Stack.Screen name="LoginScreen" component={LoginScreen} />
-      <Stack.Screen name="IndexMainUs" component={IndexMainUs} />
-      <Stack.Screen name="IndexPedidoAL" component={IndexPedidoAL} />
-      <Stack.Screen name="IndexHistorial" component={IndexHistorial} />
-      <Stack.Screen name="HistorialAL" component={HistorialAL} />
+      <Stack.Screen name="Registro" component={Registro} options={{ headerShown: false }} />
+      <Stack.Screen name="LoginScreen" component={LoginScreen} options={{ headerShown: false }}  />
+      <Stack.Screen name="IndexMainUs" component={IndexMainUs} options={{ headerShown: false }}  />
+      <Stack.Screen name="IndexPedidoAL" component={IndexPedidoAL} options={{ headerShown: false }}  />
+      <Stack.Screen name="IndexHistorial" component={IndexHistorial} options={{ headerShown: false }}  />
+      <Stack.Screen name="HistorialAL" component={HistorialAL} options={{ headerShown: false }}  />
     </Stack.Navigator>
   );
 };

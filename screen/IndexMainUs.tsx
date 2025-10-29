@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, Image, TouchableOpacity, Modal, StyleSheet, ScrollView, Alert } from 'react-native';
+import { View, Text, Image, TouchableOpacity, Modal, StyleSheet, ScrollView, Alert, StatusBar, Platform } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import ComponenteTarjeta from '../components/ComponenteTarjeta';
@@ -136,9 +136,11 @@ const IndexMainUs: React.FC = () => {
   const menuSeleccionadoId = semanaActual[diaSeleccionado]?.seleccionado;
 
   return (
-    <View style={styles.container}>
-      {/* HEADER */}
-      <View style={styles.header}>
+  <View style={styles.container}>
+    <StatusBar barStyle="light-content" backgroundColor="#222" translucent={false} />
+    
+    {/* HEADER */}
+    <View style={styles.header}>
         <Text style={styles.logo}>
           i2T<Text style={{ color: '#0beb03ff' }}>ASTE</Text>
         </Text>
@@ -283,7 +285,7 @@ const IndexMainUs: React.FC = () => {
 export default IndexMainUs;
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#111' },
+  container: { flex: 1, backgroundColor: '#111', paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0, },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
