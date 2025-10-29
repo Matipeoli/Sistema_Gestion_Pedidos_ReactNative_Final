@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Image, Alert, Modal } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Image, Alert, Modal, StatusBar, Platform } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import ComponenteTarjeta from '../components/ComponenteTarjeta';
@@ -45,7 +45,9 @@ const IndexHistorial: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      {/* header */}
+      <StatusBar barStyle="light-content" backgroundColor="#222" translucent={false} />
+      
+      {/* HEADER */}
       <View style={styles.header}>
         <Text style={styles.logo}>
           i2T<Text style={{ color: '#0beb03ff' }}>ASTE</Text>
@@ -63,7 +65,7 @@ const IndexHistorial: React.FC = () => {
         </View>
       </View>
 
-      {/* scroll historial */}
+      {/* SCROLL HISTORIAL */}
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         {historial.map((item, index) => (
           <ComponenteTarjeta
@@ -74,9 +76,17 @@ const IndexHistorial: React.FC = () => {
             onActionPress={() => Alert.alert('Historial', item.title)}
           />
         ))}
+
+        {/* BOTÓN VOLVER */}
+        <TouchableOpacity 
+          style={styles.volverBtn}
+          onPress={() => navigation.navigate('IndexMainUs')}
+        >
+          <Text style={styles.volverBtnText}>← Volver al Menú Principal</Text>
+        </TouchableOpacity>
       </ScrollView>
 
-      {/* menu hamburguesa */}
+      {/* MENU HAMBURGUESA */}
       <Modal visible={visible} transparent animationType="slide">
         <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={closeSidebar}>
           <TouchableOpacity activeOpacity={1} onPress={(e) => e.stopPropagation()}>
@@ -110,9 +120,12 @@ const IndexHistorial: React.FC = () => {
   );
 };
 
-
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#111' },
+  container: { 
+    flex: 1, 
+    backgroundColor: '#111', 
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
+  },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -133,7 +146,22 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 12,
     paddingTop: 20,
+    paddingBottom: 30,
     backgroundColor: '#121212',
+  },
+  // BOTÓN VOLVER
+  volverBtn: {
+    width: '100%',
+    backgroundColor: '#0beb03ff',
+    padding: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  volverBtnText: {
+    color: '#000',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
   modalOverlay: {
     flex: 1,
@@ -149,7 +177,13 @@ const styles = StyleSheet.create({
   },
   closeBtn: { position: 'absolute', top: 16, right: 16, zIndex: 10 },
   closeText: { color: '#fff', fontSize: 24, fontWeight: 'bold' },
-  title: { color: '#fff', fontSize: 22, marginBottom: 20, marginTop: 20, fontWeight: 'bold' },
+  title: { 
+    color: '#fff', 
+    fontSize: 22, 
+    marginBottom: 20, 
+    marginTop: 20, 
+    fontWeight: 'bold' 
+  },
   text: { color: '#fff', marginBottom: 12, fontSize: 16 },
   recoverBtn: {
     marginTop: 16,
