@@ -11,7 +11,7 @@ interface DayMenu {
   fecha: Date;
   dia: string;
   opciones: MenuOption[];
-  seleccionado?: string; // ID del menú seleccionado
+  seleccionado?: string; // ID del seleccionado
 }
 
 const ComponenteCalendario: React.FC = () => {
@@ -33,9 +33,9 @@ const ComponenteCalendario: React.FC = () => {
 
   const generarSemana = () => {
     const hoy = new Date();
-    const diaSemana = hoy.getDay(); // 0 = Domingo, 1 = Lunes, etc.
+    const diaSemana = hoy.getDay(); // 0 = domingo, 1 = lunes, etc
     
-    // Calcular el lunes de la semana siguiente
+    // calculo del proximo lunes
     const diasHastaLunes = diaSemana === 0 ? 1 : 8 - diaSemana;
     const lunesSiguiente = new Date(hoy);
     lunesSiguiente.setDate(hoy.getDate() + diasHastaLunes);
@@ -43,7 +43,7 @@ const ComponenteCalendario: React.FC = () => {
     const dias: DayMenu[] = [];
     const nombresDias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
 
-    // Generar los 5 días laborables (Lunes a Viernes)
+    // 5 dias de lunes a viernes
     for (let i = 0; i < 5; i++) {
       const fecha = new Date(lunesSiguiente);
       fecha.setDate(lunesSiguiente.getDate() + i);
@@ -61,7 +61,7 @@ const ComponenteCalendario: React.FC = () => {
 
   const verificarPlazoEdicion = () => {
     const hoy = new Date();
-    const diaSemana = hoy.getDay(); // 0 = Domingo, 1 = Lunes, etc.
+    const diaSemana = hoy.getDay(); // 0 = domingo, 1 = lunes, etc
     const hora = hoy.getHours();
 
     // Puede editar hasta el jueves a las 23:59

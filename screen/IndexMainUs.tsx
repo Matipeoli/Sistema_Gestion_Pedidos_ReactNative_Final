@@ -115,7 +115,7 @@ const IndexMainUs: React.FC = () => {
     nuevaSemana[diaSeleccionado].seleccionado = menuId;
     setSemanaActual(nuevaSemana);
     
-    Alert.alert('✓ Menú seleccionado', `Tu menú para ${semanaActual[diaSeleccionado].dia} ha sido guardado.`);
+    Alert.alert('Menú seleccionado', `Tu menú para ${semanaActual[diaSeleccionado].dia} ha sido guardado.`);
   };
 
   const formatearFecha = (fecha: Date) => {
@@ -198,9 +198,7 @@ const IndexMainUs: React.FC = () => {
         </ScrollView>
 
         <Text style={styles.instruccion}>
-          {puedeEditar 
-            ? '👆 Selecciona un día y elige tu menú abajo' 
-            : 'Visualizando menús de la semana'}
+          {puedeEditar}
         </Text>
       </View>
 
