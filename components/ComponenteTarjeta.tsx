@@ -78,7 +78,7 @@ const ComponenteTarjeta: React.FC<CardProps> = ({
               style={styles.closeButton}
               onPress={() => setModalVisible(false)}
             >
-              <Text style={styles.closeButtonText}>Cerrar</Text>
+              <Text style={styles.closeButtonText}>Confirmar</Text>
             </TouchableOpacity>
           </View>
         </View>
