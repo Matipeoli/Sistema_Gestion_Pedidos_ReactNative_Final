@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, Image, TouchableOpacity, Modal, StyleSheet, ScrollView, Alert, StatusBar, Platform } from 'react-native';
+import { View, Text, Image, TouchableOpacity, Modal, StyleSheet, ScrollView, Alert, StatusBar, Platform, TextInput } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import ComponenteTarjeta from '../components/ComponenteTarjeta';
@@ -15,7 +15,6 @@ interface MenuOption {
   title: string;
   description: string;
   image: string;
-  activo: boolean; // Si está disponible para ese día
 }
 
 interface DayMenu {
@@ -26,12 +25,22 @@ interface DayMenu {
 
 const IndexPedidoAL: React.FC = () => {
   const [visible, setVisible] = useState(false);
+  const [modalFormVisible, setModalFormVisible] = useState(false);
+  const [modoEdicion, setModoEdicion] = useState(false);
+  const [menuEditando, setMenuEditando] = useState<MenuOption | null>(null);
+  
   const [semanaActual, setSemanaActual] = useState<DayMenu[]>([]);
   const [diaSeleccionado, setDiaSeleccionado] = useState<number>(0);
+  
+  // Estados del formulario
+  const [titulo, setTitulo] = useState('');
+  const [descripcion, setDescripcion] = useState('');
+  const [imagen, setImagen] = useState('');
+  
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
-  // Todos los menús disponibles en el sistema
-  const todosLosMenus: Omit<MenuOption, 'activo'>[] = [
+  // Menús del sistema (todos disponibles)
+  const [todosLosMenus, setTodosLosMenus] = useState<MenuOption[]>([
     {
       id: 1,
       title: 'Hamburguesa Clásica',
@@ -50,17 +59,11 @@ const IndexPedidoAL: React.FC = () => {
       description: 'Helado artesanal con crema y jarabe de vainilla natural.',
       image: 'https://images.unsplash.com/photo-1565958011705-44e211f59e30',
     },
-    {
-      id: 4,
-      title: 'Ensalada César',
-      description: 'Lechuga, pollo grillado, crutones y aderezo césar.',
-      image: 'https://images.unsplash.com/photo-1546793665-c74683f339c1',
-    },
-  ];
+  ]);
 
   React.useEffect(() => {
     generarSemana();
-  }, []);
+  }, [todosLosMenus]);
 
   const generarSemana = () => {
     const hoy = new Date();
@@ -76,41 +79,98 @@ const IndexPedidoAL: React.FC = () => {
       const fecha = new Date(lunesSiguiente);
       fecha.setDate(lunesSiguiente.getDate() + i);
       
-      // Por defecto, todos los menús están activos
-      const menusConEstado = todosLosMenus.map(menu => ({
-        ...menu,
-        activo: true,
-      }));
-
       dias.push({
         fecha,
         dia: nombresDias[fecha.getDay()],
-        menus: menusConEstado,
+        menus: [...todosLosMenus],
       });
     }
 
     setSemanaActual(dias);
   };
 
-  const toggleMenuDelDia = (menuId: number) => {
-    const nuevaSemana = [...semanaActual];
-    const menuIndex = nuevaSemana[diaSeleccionado].menus.findIndex(m => m.id === menuId);
-    
-    if (menuIndex !== -1) {
-      nuevaSemana[diaSeleccionado].menus[menuIndex].activo = 
-        !nuevaSemana[diaSeleccionado].menus[menuIndex].activo;
-      setSemanaActual(nuevaSemana);
-    }
-  };
-
-  const guardarConfiguracion = () => {
-    // Aquí se guardaría en el backend
-    console.log('Configuración guardada:', semanaActual);
-    Alert.alert('✓ Guardado', 'La configuración de menús ha sido guardada correctamente.');
-  };
-
   const formatearFecha = (fecha: Date) => {
     return `${fecha.getDate()}/${fecha.getMonth() + 1}`;
+  };
+
+  // ABRIR MODAL PARA AGREGAR
+  const abrirModalAgregar = () => {
+    setModoEdicion(false);
+    setMenuEditando(null);
+    setTitulo('');
+    setDescripcion('');
+    setImagen('https://images.unsplash.com/photo-');
+    setModalFormVisible(true);
+  };
+
+  // ABRIR MODAL PARA EDITAR
+  const abrirModalEditar = (menu: MenuOption) => {
+    setModoEdicion(true);
+    setMenuEditando(menu);
+    setTitulo(menu.title);
+    setDescripcion(menu.description);
+    setImagen(menu.image);
+    setModalFormVisible(true);
+  };
+
+  // GUARDAR MENU (AGREGAR O EDITAR)
+  const guardarMenu = () => {
+    if (!titulo.trim()) {
+      Alert.alert('Error', 'El título es obligatorio');
+      return;
+    }
+    if (!descripcion.trim()) {
+      Alert.alert('Error', 'La descripción es obligatoria');
+      return;
+    }
+    if (!imagen.trim()) {
+      Alert.alert('Error', 'La URL de la imagen es obligatoria');
+      return;
+    }
+
+    if (modoEdicion && menuEditando) {
+      // EDITAR MENÚ EXISTENTE
+      const nuevosMenus = todosLosMenus.map(menu =>
+        menu.id === menuEditando.id
+          ? { ...menu, title: titulo, description: descripcion, image: imagen }
+          : menu
+      );
+      setTodosLosMenus(nuevosMenus);
+      Alert.alert('✓ Actualizado', 'El menú ha sido actualizado correctamente');
+    } else {
+      // AGREGAR NUEVO MENÚ
+      const nuevoId = Math.max(...todosLosMenus.map(m => m.id), 0) + 1;
+      const nuevoMenu: MenuOption = {
+        id: nuevoId,
+        title: titulo,
+        description: descripcion,
+        image: imagen,
+      };
+      setTodosLosMenus([...todosLosMenus, nuevoMenu]);
+      Alert.alert('✓ Agregado', 'El menú ha sido agregado correctamente');
+    }
+
+    setModalFormVisible(false);
+  };
+
+  // ELIMINAR MENU
+  const eliminarMenu = (menuId: number) => {
+    Alert.alert(
+      'Confirmar eliminación',
+      '¿Estás seguro de eliminar este menú? Se eliminará de todos los días.',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Eliminar',
+          style: 'destructive',
+          onPress: () => {
+            const nuevosMenus = todosLosMenus.filter(m => m.id !== menuId);
+            setTodosLosMenus(nuevosMenus);
+            Alert.alert('✓ Eliminado', 'El menú ha sido eliminado');
+          },
+        },
+      ]
+    );
   };
 
   const closeSidebar = () => setVisible(false);
@@ -124,7 +184,6 @@ const IndexPedidoAL: React.FC = () => {
   };
 
   const menusDiaActual = semanaActual[diaSeleccionado]?.menus || [];
-  const menusActivos = menusDiaActual.filter(m => m.activo).length;
 
   return (
     <View style={styles.container}>
@@ -151,80 +210,129 @@ const IndexPedidoAL: React.FC = () => {
       {/* CALENDARIO SEMANAL */}
       <View style={styles.calendarioContainer}>
         <View style={styles.calendarioHeader}>
-          <Text style={styles.calendarioTitle}>📅 Configurar Menús por Día</Text>
+          <Text style={styles.calendarioTitle}>📅 Vista Semanal de Menús</Text>
           <Text style={styles.infoText}>
-            {menusActivos} de {menusDiaActual.length} activos
+            {todosLosMenus.length} menús disponibles
           </Text>
         </View>
 
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.diasScroll}>
-          {semanaActual.map((dia, index) => {
-            const activos = dia.menus.filter(m => m.activo).length;
-            return (
-              <TouchableOpacity
-                key={index}
-                style={[
-                  styles.diaCard,
-                  diaSeleccionado === index && styles.diaCardSelected,
-                ]}
-                onPress={() => setDiaSeleccionado(index)}
-              >
-                <Text style={[
-                  styles.diaNombre,
-                  diaSeleccionado === index && styles.diaTextoSelected,
-                ]}>
-                  {dia.dia}
-                </Text>
-                <Text style={[
-                  styles.diaFecha,
-                  diaSeleccionado === index && styles.diaTextoSelected,
-                ]}>
-                  {formatearFecha(dia.fecha)}
-                </Text>
-                <View style={styles.badgeContainer}>
-                  <Text style={styles.badgeText}>{activos}</Text>
-                </View>
-              </TouchableOpacity>
-            );
-          })}
+          {semanaActual.map((dia, index) => (
+            <TouchableOpacity
+              key={index}
+              style={[
+                styles.diaCard,
+                diaSeleccionado === index && styles.diaCardSelected,
+              ]}
+              onPress={() => setDiaSeleccionado(index)}
+            >
+              <Text style={[
+                styles.diaNombre,
+                diaSeleccionado === index && styles.diaTextoSelected,
+              ]}>
+                {dia.dia}
+              </Text>
+              <Text style={[
+                styles.diaFecha,
+                diaSeleccionado === index && styles.diaTextoSelected,
+              ]}>
+                {formatearFecha(dia.fecha)}
+              </Text>
+            </TouchableOpacity>
+          ))}
         </ScrollView>
 
         <Text style={styles.instruccion}>
-          👆 Selecciona un día y activa/desactiva los menús disponibles
+          👆 Gestiona los menús disponibles para toda la semana
         </Text>
       </View>
 
       {/* TARJETAS DE MENÚ */}
       <ScrollView contentContainerStyle={styles.scrollContainer}>
-        <Text style={styles.menuDelDia}>
-          Configurar {semanaActual[diaSeleccionado]?.dia || ''}
-        </Text>
-
-        <View style={styles.cardsGrid}>
-          {menusDiaActual.map((menu) => (
-            <View key={menu.id} style={styles.cardWrapper}>
-              <ComponenteTarjeta
-                title={menu.title}
-                description={menu.description}
-                image={menu.image}
-                actionLabel={menu.activo ? '✓ Activo' : '✕ Desactivado'}
-                onActionPress={() => toggleMenuDelDia(menu.id)}
-                style={menu.activo ? styles.cardActiva : styles.cardInactiva}
-              />
-              {!menu.activo && (
-                <View style={styles.overlayInactivo}>
-                  <Text style={styles.overlayText}>DESACTIVADO</Text>
-                </View>
-              )}
-            </View>
-          ))}
+        <View style={styles.tituloConBoton}>
+          <Text style={styles.menuDelDia}>Menús Disponibles</Text>
+          <TouchableOpacity style={styles.agregarBtn} onPress={abrirModalAgregar}>
+            <Text style={styles.agregarBtnText}>+ Agregar Menú</Text>
+          </TouchableOpacity>
         </View>
 
-        {/* BOTÓN GUARDAR */}
-        <TouchableOpacity style={styles.guardarBtn} onPress={guardarConfiguracion}>
-          <Text style={styles.guardarBtnText}>💾 Guardar Configuración</Text>
-        </TouchableOpacity>
+        <View style={styles.cardsGrid}>
+          {todosLosMenus.map((menu) => (
+            <ComponenteTarjeta
+              key={menu.id}
+              id={menu.id}
+              title={menu.title}
+              description={menu.description}
+              image={menu.image}
+              showAdminActions={true}
+              onEdit={abrirModalEditar}
+              onDelete={eliminarMenu}
+            />
+          ))}
+        </View>
       </ScrollView>
+
+      {/* MODAL FORMULARIO (AGREGAR/EDITAR) */}
+      <Modal
+        visible={modalFormVisible}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setModalFormVisible(false)}
+      >
+        <View style={styles.modalOverlayForm}>
+          <View style={styles.modalForm}>
+            <Text style={styles.modalFormTitulo}>
+              {modoEdicion ? '✏️ Editar Menú' : '➕ Agregar Nuevo Menú'}
+            </Text>
+
+            <Text style={styles.label}>Título *</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Ej: Hamburguesa Premium"
+              placeholderTextColor="#999"
+              value={titulo}
+              onChangeText={setTitulo}
+            />
+
+            <Text style={styles.label}>Descripción *</Text>
+            <TextInput
+              style={[styles.input, styles.inputMultiline]}
+              placeholder="Descripción del menú..."
+              placeholderTextColor="#999"
+              value={descripcion}
+              onChangeText={setDescripcion}
+              multiline
+              numberOfLines={3}
+            />
+
+            <Text style={styles.label}>URL de Imagen *</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="https://images.unsplash.com/..."
+              placeholderTextColor="#999"
+              value={imagen}
+              onChangeText={setImagen}
+            />
+
+            <View style={styles.botonesModal}>
+              <TouchableOpacity
+                style={styles.btnCancelar}
+                onPress={() => setModalFormVisible(false)}
+              >
+                <Text style={styles.btnCancelarTexto}>Cancelar</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.btnGuardar}
+                onPress={guardarMenu}
+              >
+                <Text style={styles.btnGuardarTexto}>
+                  {modoEdicion ? 'Actualizar' : 'Guardar'}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
 
       {/* MENU HAMBURGUESA */}
       <Modal visible={visible} transparent animationType="slide">
@@ -326,7 +434,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderWidth: 2,
     borderColor: 'transparent',
-    position: 'relative',
   },
   diaCardSelected: {
     backgroundColor: '#0beb03ff',
@@ -345,22 +452,6 @@ const styles = StyleSheet.create({
   diaTextoSelected: {
     color: '#000',
   },
-  badgeContainer: {
-    position: 'absolute',
-    top: -8,
-    right: -8,
-    backgroundColor: '#ff6b00',
-    borderRadius: 12,
-    width: 24,
-    height: 24,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  badgeText: {
-    color: '#fff',
-    fontSize: 12,
-    fontWeight: 'bold',
-  },
   instruccion: {
     color: '#999',
     fontSize: 12,
@@ -370,65 +461,108 @@ const styles = StyleSheet.create({
   },
 
   // MENÚS
+  scrollContainer: {
+    padding: 16,
+    paddingTop: 20,
+  },
+  tituloConBoton: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
   menuDelDia: {
     color: '#fff',
     fontSize: 20,
     fontWeight: 'bold',
-    marginBottom: 16,
-    textAlign: 'center',
   },
-  scrollContainer: {
-    padding: 16,
-    paddingTop: 20,
+  agregarBtn: {
+    backgroundColor: '#0beb03ff',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+  },
+  agregarBtnText: {
+    color: '#000',
+    fontWeight: 'bold',
+    fontSize: 14,
   },
   cardsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
   },
-  cardWrapper: {
-    position: 'relative',
-    marginBottom: 12,
-  },
-  cardActiva: {
-    borderWidth: 2,
-    borderColor: '#0beb03ff',
-  },
-  cardInactiva: {
-    opacity: 0.5,
-    borderWidth: 2,
-    borderColor: '#ff4444',
-  },
-  overlayInactivo: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+
+  // MODAL FORMULARIO
+  modalOverlayForm: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
     justifyContent: 'center',
     alignItems: 'center',
-    borderRadius: 18,
   },
-  overlayText: {
+  modalForm: {
+    width: '90%',
+    backgroundColor: '#2a2a2a',
+    borderRadius: 16,
+    padding: 24,
+    maxHeight: '80%',
+  },
+  modalFormTitulo: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#fff',
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  label: {
     color: '#fff',
     fontSize: 14,
     fontWeight: 'bold',
-    transform: [{ rotate: '-15deg' }],
+    marginBottom: 8,
+    marginTop: 12,
   },
-
-  // BOTÓN GUARDAR
-  guardarBtn: {
-    backgroundColor: '#0beb03ff',
-    padding: 16,
-    borderRadius: 12,
-    alignItems: 'center',
-    marginTop: 20,
-  },
-  guardarBtnText: {
-    color: '#000',
+  input: {
+    backgroundColor: '#1e1e1e',
+    borderWidth: 1,
+    borderColor: '#444',
+    borderRadius: 8,
+    padding: 12,
+    color: '#fff',
     fontSize: 16,
+  },
+  inputMultiline: {
+    height: 80,
+    textAlignVertical: 'top',
+  },
+  botonesModal: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 24,
+    gap: 12,
+  },
+  btnCancelar: {
+    flex: 1,
+    backgroundColor: '#444',
+    padding: 14,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  btnCancelarTexto: {
+    color: '#fff',
     fontWeight: 'bold',
+    fontSize: 16,
+  },
+  btnGuardar: {
+    flex: 1,
+    backgroundColor: '#0beb03ff',
+    padding: 14,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  btnGuardarTexto: {
+    color: '#000',
+    fontWeight: 'bold',
+    fontSize: 16,
   },
 
   // SIDEBAR

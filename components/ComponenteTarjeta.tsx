@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity, TextInput, Modal, ViewStyle } from 'react-native';
 
 interface CardProps {
+  id?: number;
   title: string;
   description?: string;
   observacion?: string;
@@ -10,9 +11,14 @@ interface CardProps {
   style?: ViewStyle;
   actionLabel?: string;
   onActionPress?: () => void;
+  // Props para modo administrador
+  showAdminActions?: boolean;
+  onEdit?: (id: number) => void;
+  onDelete?: (id: number) => void;
 }
 
 const ComponenteTarjeta: React.FC<CardProps> = ({
+  id,
   title,
   description,
   image,
@@ -20,6 +26,9 @@ const ComponenteTarjeta: React.FC<CardProps> = ({
   style,
   actionLabel,
   onActionPress,
+  showAdminActions = false,
+  onEdit,
+  onDelete,
 }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [text, setText] = useState('');
@@ -30,70 +39,94 @@ const ComponenteTarjeta: React.FC<CardProps> = ({
   };
 
   return (
-    <TouchableOpacity
-      activeOpacity={0.9}
-      onPress={onPress}
-      style={[styles.card, style]}
-    >
-      {image && <Image source={{ uri: image }} style={styles.image} />}
+    <View style={[styles.cardWrapper]}>
+      <TouchableOpacity
+        activeOpacity={0.9}
+        onPress={onPress}
+        style={[styles.card, style]}
+      >
+        {image && <Image source={{ uri: image }} style={styles.image} />}
 
-      <View style={styles.infoContainer}>
-        <View style={styles.textContainer}>
-          <Text style={styles.title} numberOfLines={2}>{title}</Text>
-          {description && (
-            <Text style={styles.description} numberOfLines={2}>
-              {description}
-            </Text>
+        <View style={styles.infoContainer}>
+          <View style={styles.textContainer}>
+            <Text style={styles.title} numberOfLines={2}>{title}</Text>
+            {description && (
+              <Text style={styles.description} numberOfLines={2}>
+                {description}
+              </Text>
+            )}
+          </View>
+          
+          {/* Botón normal de acción (para usuarios) */}
+          {actionLabel && !showAdminActions && (
+            <TouchableOpacity
+              onPress={handleActionPress}
+              style={styles.actionButton}
+            >
+              <Text style={styles.actionText}>{actionLabel}</Text>
+            </TouchableOpacity>
           )}
         </View>
-        {actionLabel && (
-          <TouchableOpacity
-            onPress={handleActionPress}
-            style={styles.actionButton}
-          >
-            <Text style={styles.actionText}>{actionLabel}</Text>
-          </TouchableOpacity>
-        )}
-      </View>
 
-      {/* Modal flotante */}
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}
-      >
-        <View style={styles.modalBackground}>
-          <View style={styles.modalContainer}>
-            <Text style={styles.modalTitle}>Observaciones</Text>
-            <TextInput
-              style={styles.modalInput}
-              placeholder="Escribe tus observaciones..."
-              placeholderTextColor="#999"
-              value={text}
-              onChangeText={setText}
-              multiline
-            />
-            <TouchableOpacity 
-              style={styles.closeButton}
-              onPress={() => setModalVisible(false)}
-            >
-              <Text style={styles.closeButtonText}>Confirmar</Text>
-            </TouchableOpacity>
+        {/* Modal flotante de observaciones */}
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={modalVisible}
+          onRequestClose={() => setModalVisible(false)}
+        >
+          <View style={styles.modalBackground}>
+            <View style={styles.modalContainer}>
+              <Text style={styles.modalTitle}>Observaciones</Text>
+              <TextInput
+                style={styles.modalInput}
+                placeholder="Escribe tus observaciones..."
+                placeholderTextColor="#999"
+                value={text}
+                onChangeText={setText}
+                multiline
+              />
+              <TouchableOpacity 
+                style={styles.closeButton}
+                onPress={() => setModalVisible(false)}
+              >
+                <Text style={styles.closeButtonText}>Confirmar</Text>
+              </TouchableOpacity>
+            </View>
           </View>
+        </Modal>
+      </TouchableOpacity>
+
+      {/* Botones de administrador (solo si showAdminActions es true) */}
+      {showAdminActions && id && onEdit && onDelete && (
+        <View style={styles.adminActionsContainer}>
+          <TouchableOpacity
+            style={styles.btnEditar}
+            onPress={() => onEdit(id)}
+          >
+            <Text style={styles.btnTexto}>✏️ Editar</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.btnEliminar}
+            onPress={() => onDelete(id)}
+          >
+            <Text style={styles.btnTexto}>🗑️ Eliminar</Text>
+          </TouchableOpacity>
         </View>
-      </Modal>
-    </TouchableOpacity>
+      )}
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
+  cardWrapper: {
+    width: '47%',
+    marginBottom: 12,
+  },
   card: {
     backgroundColor: '#1f1f1f',
     borderRadius: 18,
     overflow: 'hidden',
-    marginVertical: 8,
-    width: '47%',
     elevation: 6,
     shadowColor: '#000',
     shadowOpacity: 0.4,
@@ -102,7 +135,7 @@ const styles = StyleSheet.create({
   },
   image: {
     width: '100%',
-    height: 140, // ← Altura fija en lugar de porcentaje
+    height: 140,
     borderTopLeftRadius: 18,
     borderTopRightRadius: 18,
   },
@@ -110,7 +143,7 @@ const styles = StyleSheet.create({
     padding: 12,
     paddingTop: 10,
     justifyContent: 'space-between',
-    minHeight: 120, // ← Altura mínima consistente
+    minHeight: 120,
   },
   textContainer: {
     flex: 1,
@@ -140,6 +173,8 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     fontSize: 13,
   },
+  
+  // MODAL DE OBSERVACIONES
   modalBackground: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.7)',
@@ -181,6 +216,32 @@ const styles = StyleSheet.create({
     color: '#000',
     fontWeight: 'bold',
     fontSize: 16,
+  },
+
+  // BOTONES DE ADMINISTRADOR
+  adminActionsContainer: {
+    flexDirection: 'row',
+    marginTop: 8,
+    gap: 8,
+  },
+  btnEditar: {
+    flex: 1,
+    backgroundColor: '#007bff',
+    paddingVertical: 10,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  btnEliminar: {
+    flex: 1,
+    backgroundColor: '#ff4444',
+    paddingVertical: 10,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  btnTexto: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 13,
   },
 });
 
