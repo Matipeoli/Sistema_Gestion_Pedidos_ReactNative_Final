@@ -5,6 +5,7 @@ import ComponenteBoton from '../components/ComponenteBoton';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { styles, colors } from '../styles/StylesApp';
+import axios from 'axios';
 
 type RootStackParamList = {
   LoginScreen: undefined;
@@ -13,23 +14,23 @@ type RootStackParamList = {
 interface UsuarioRegistro {
   nombre: string;
   email: string;
-  password: string;
-  confirmPassword: string;
+  contrasenia: string;
+  confirmarContrasenia: string;
 }
 
 const Registro: React.FC = () => {
   const [usuario, setUsuario] = useState<UsuarioRegistro>({
     nombre: '',
     email: '',
-    password: '',
-    confirmPassword: '',
+    contrasenia: '',
+    confirmarContrasenia: '',
   });
 
   const [errores, setErrores] = useState({
     nombre: '',
     email: '',
-    password: '',
-    confirmPassword: '',
+    contrasenia: '',
+    confirmarContrasenia: '',
   });
 
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
@@ -39,9 +40,9 @@ const Registro: React.FC = () => {
     if (errores[campo]) setErrores({ ...errores, [campo]: '' });
   };
 
-  const handleRegister = () => {
+  const handleRegister = async () => {
     let valid = true;
-    const nuevosErrores = { nombre: '', email: '', password: '', confirmPassword: '' };
+    const nuevosErrores = { nombre: '', email: '', contrasenia: '', confirmarContrasenia: '' };
 
     if (!usuario.nombre) {
       nuevosErrores.nombre = 'Ingrese un nombre';
@@ -59,29 +60,39 @@ const Registro: React.FC = () => {
       valid = false;
     }
 
-    if (!usuario.password) {
-      nuevosErrores.password = 'Ingrese una contraseña';
+    if (!usuario.contrasenia) {
+      nuevosErrores.contrasenia = 'Ingrese una contraseña';
       valid = false;
-    } else if (usuario.password.length < 6) {
-      nuevosErrores.password = 'Debe tener al menos 6 caracteres';
+    } else if (usuario.contrasenia.length < 6) {
+      nuevosErrores.contrasenia = 'Debe tener al menos 6 caracteres';
       valid = false;
     }
 
-    if (!usuario.confirmPassword) {
-      nuevosErrores.confirmPassword = 'Confirme su contraseña';
+    if (!usuario.confirmarContrasenia) {
+      nuevosErrores.confirmarContrasenia = 'Confirme su contraseña';
       valid = false;
-    } else if (usuario.password !== usuario.confirmPassword) {
-      nuevosErrores.confirmPassword = 'Las contraseñas no coinciden';
+    } else if (usuario.contrasenia !== usuario.confirmarContrasenia) {
+      nuevosErrores.confirmarContrasenia = 'Las contraseñas no coinciden';
       valid = false;
     }
 
     setErrores(nuevosErrores);
     if (!valid) return;
 
+    try {
+      const response = await axios.post('http://192.168.0.10:8080/auth/register', {
+        nombre: usuario.nombre,
+        email: usuario.email,
+        contrasenia: usuario.contrasenia,
+      });
     Alert.alert('Registro exitoso', 'Ahora puedes iniciar sesión');
     console.log('Registro:', usuario);
     navigation.navigate('LoginScreen');
-  };
+    } catch (error) {
+      console.error('Error en el registro:', error);
+      Alert.alert('Error', 'Hubo un problema al registrar. Intente nuevamente.');
+    }
+    };
 
   return (
     <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
@@ -107,19 +118,19 @@ const Registro: React.FC = () => {
 
           <ComponenteTexto
             placeholder="Contraseña"
-            value={usuario.password}
-            onChangeText={(text) => handleChange('password', text)}
+            value={usuario.contrasenia}
+            onChangeText={(text) => handleChange('contrasenia', text)}
             secureTextEntry
           />
-          {errores.password ? <Text style={styles.textError}>{errores.password}</Text> : null}
+          {errores.contrasenia ? <Text style={styles.textError}>{errores.contrasenia}</Text> : null}
 
           <ComponenteTexto
             placeholder="Confirmar contraseña"
-            value={usuario.confirmPassword}
-            onChangeText={(text) => handleChange('confirmPassword', text)}
+            value={usuario.confirmarContrasenia}
+            onChangeText={(text) => handleChange('confirmarContrasenia', text)}
             secureTextEntry
           />
-          {errores.confirmPassword ? <Text style={styles.textError}>{errores.confirmPassword}</Text> : null}
+          {errores.confirmarContrasenia ? <Text style={styles.textError}>{errores.confirmarContrasenia}</Text> : null}
 
           <ComponenteBoton title="Registrarse" onPress={handleRegister} />
 
