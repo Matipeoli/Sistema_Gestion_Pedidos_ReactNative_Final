@@ -5,6 +5,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import ComponenteTarjeta from '../components/ComponenteTarjeta';
 import ComponenteMenuModal from '../components/ComponenteMenuModal';
 import { styles, colors } from '../styles/StylesApp';
+import { obtenerMenus, crearMenu, editarMenu as editarMenuApi, eliminarMenu as eliminarMenuApi } from '../api/menuApi';
 
 type RootStackParamList = {
   LoginScreen: undefined;
@@ -31,29 +32,7 @@ const IndexPedidoAL: React.FC = () => {
   const [modoEdicion, setModoEdicion] = useState(false);
   const [menuEditando, setMenuEditando] = useState<MenuOption | null>(null);
   const [pedidoSemanal, setPedidoSemanal] = useState<MenuOption[]>([]);
-
-
-  const [todosLosMenus, setTodosLosMenus] = useState<MenuOption[]>([
-    {
-      id: 1,
-      title: 'Hamburguesa Clásica',
-      description: 'Pan artesanal, carne de res, lechuga, tomate y queso cheddar.',
-      image: 'https://images.unsplash.com/photo-1550547660-d9450f859349',
-    },
-    {
-      id: 2,
-      title: 'Papas Rústicas',
-      description: 'Corte grueso, condimento especial y cocción crocante.',
-      image: 'https://images.unsplash.com/photo-1606756790138-8c3f01a1d9b5',
-    },
-    {
-      id: 3,
-      title: 'Milkshake de Vainilla',
-      description: 'Helado artesanal con crema y jarabe de vainilla natural.',
-      image: 'https://images.unsplash.com/photo-1565958011705-44e211f59e30',
-    },
-  ]);
-
+  const [todosLosMenus, setTodosLosMenus] = useState<MenuOption[]>([]);
   const [semanaActual, setSemanaActual] = useState<DayMenu[]>([]);
   const [diaSeleccionado, setDiaSeleccionado] = useState<number>(0);
 
@@ -82,8 +61,26 @@ const IndexPedidoAL: React.FC = () => {
     return dias;
   };
 
+  //carga menus desde el backend
+  const cargarMenus = async () => {
+    try {
+      const data = await obtenerMenus();
+      const menusFormateados = data.map((menu: any) => ({
+        id: menu.id,
+        title: menu.titulo,
+        description: menu.descripcion,
+        image: menu.img,
+      }));
+      setTodosLosMenus(menusFormateados);
+      setSemanaActual(generarSemanaConMenus(menusFormateados));
+    } catch (err) {
+      console.error(err);
+      Alert.alert('Error', 'No se pudieron cargar los menús del servidor.');
+    }
+  };
+
   useEffect(() => {
-    setSemanaActual(generarSemanaConMenus(todosLosMenus));
+    cargarMenus();
   }, []);
 
   const abrirModalAgregar = () => {
@@ -98,58 +95,81 @@ const IndexPedidoAL: React.FC = () => {
     setModalFormVisible(true);
   };
 
-  const agregarMenu = (nuevoMenuData: Omit<MenuOption, 'id'>) => {
-    const nuevoId = Math.max(...todosLosMenus.map(m => m.id), 0) + 1;
-    const nuevoMenu: MenuOption = { id: nuevoId, ...nuevoMenuData };
-    const nuevosMenus = [...todosLosMenus, nuevoMenu];
-    setTodosLosMenus(nuevosMenus);
-    setSemanaActual(generarSemanaConMenus(nuevosMenus));
-    Alert.alert('✓ Agregado', 'El menú ha sido agregado correctamente');
+  //crea menus
+  const agregarMenu = async (nuevoMenuData: Omit<MenuOption, 'id'>) => {
+    try {
+      const menuParaBackend = {
+        img: nuevoMenuData.image,
+        titulo: nuevoMenuData.title,
+        descripcion: nuevoMenuData.description,
+        id_tipo: 1, // puedes ajustar según tu base de datos
+      };
+      await crearMenu(menuParaBackend);
+      Alert.alert('✓ Agregado', 'El menú ha sido agregado correctamente');
+      cargarMenus();
+    } catch (err) {
+      console.error(err);
+      Alert.alert('Error', 'No se pudo agregar el menú');
+    }
   };
 
-  const editarMenu = (id: number, datos: Omit<MenuOption, 'id'>) => {
-    const nuevosMenus = todosLosMenus.map(menu =>
-      menu.id === id ? { ...menu, ...datos } : menu
-    );
-    setTodosLosMenus(nuevosMenus);
-    setSemanaActual(generarSemanaConMenus(nuevosMenus));
-    Alert.alert('✓ Actualizado', 'El menú ha sido actualizado correctamente');
+  //editar menus
+  const editarMenu = async (id: number, datos: Omit<MenuOption, 'id'>) => {
+    try {
+      const menuParaBackend = {
+        id,
+        img: datos.image,
+        titulo: datos.title,
+        descripcion: datos.description,
+        id_tipo: 1,
+      };
+      await editarMenuApi(menuParaBackend);
+      Alert.alert('Actualizado', 'El menú ha sido actualizado correctamente');
+      cargarMenus();
+    } catch (err) {
+      console.error(err);
+      Alert.alert('Error', 'No se pudo editar el menú');
+    }
   };
 
-  const eliminarMenu = (menuId: number) => {
+  // eliminar menus
+  const eliminarMenu = async (menuId: number) => {
     Alert.alert(
       'Confirmar eliminación',
-      '¿Estás seguro de eliminar este menú? Se eliminará de todos los días.',
+      '¿Estás seguro de eliminar este menú?',
       [
         { text: 'Cancelar', style: 'cancel' },
         {
           text: 'Eliminar',
           style: 'destructive',
-          onPress: () => {
-            const nuevosMenus = todosLosMenus.filter(m => m.id !== menuId);
-            setTodosLosMenus(nuevosMenus);
-            setSemanaActual(generarSemanaConMenus(nuevosMenus));
-            Alert.alert('✓ Eliminado', 'El menú ha sido eliminado');
+          onPress: async () => {
+            try {
+              await eliminarMenuApi(menuId);
+              Alert.alert('Eliminado', 'El menú ha sido eliminado');
+              cargarMenus();
+            } catch (err) {
+              console.error(err);
+              Alert.alert('Error', 'No se pudo eliminar el menú');
+            }
           },
         },
       ]
     );
   };
 
+  //confirmar pedido (local)
   const confirmarPedido = (menuId: number) => {
-  const menuSeleccionado = todosLosMenus.find(m => m.id === menuId);
-  if (!menuSeleccionado) return;
+    const menuSeleccionado = todosLosMenus.find(m => m.id === menuId);
+    if (!menuSeleccionado) return;
 
-  // Evitar duplicados
-  if (pedidoSemanal.some(m => m.id === menuId)) {
-    Alert.alert('⚠️ Ya confirmado', 'Este menú ya fue agregado al pedido semanal.');
-    return;
-  }
+    if (pedidoSemanal.some(m => m.id === menuId)) {
+      Alert.alert('Ya confirmado', 'Este menú ya fue agregado al pedido semanal.');
+      return;
+    }
 
-  setPedidoSemanal([...pedidoSemanal, menuSeleccionado]);
-  Alert.alert('✅ Pedido confirmado', `El menú "${menuSeleccionado.title}" fue agregado al pedido semanal.`);
-};
-
+    setPedidoSemanal([...pedidoSemanal, menuSeleccionado]);
+    Alert.alert('Pedido confirmado', `El menú "${menuSeleccionado.title}" fue agregado al pedido semanal.`);
+  };
 
   const closeSidebar = () => setVisible(false);
 
@@ -181,7 +201,7 @@ const IndexPedidoAL: React.FC = () => {
       {/* CALENDARIO */}
       <View style={styles.calendarioContainer}>
         <View style={styles.calendarioHeader}>
-          <Text style={styles.calendarioTitle}>📅 Vista Semanal de Menús</Text>
+          <Text style={styles.calendarioTitle}>Vista Semanal de Menús</Text>
           <Text style={[styles.textSmall, { color: colors.primaryDark, fontWeight: 'bold' }]}>
             {todosLosMenus.length} menús disponibles
           </Text>
@@ -190,28 +210,19 @@ const IndexPedidoAL: React.FC = () => {
           {semanaActual.map((dia, index) => (
             <TouchableOpacity
               key={index}
-              style={[
-                styles.diaCard,
-                diaSeleccionado === index && styles.diaCardSelected,
-              ]}
+              style={[styles.diaCard, diaSeleccionado === index && styles.diaCardSelected]}
               onPress={() => setDiaSeleccionado(index)}
             >
-              <Text style={[
-                styles.diaNombre,
-                diaSeleccionado === index && styles.diaTextoSelected,
-              ]}>
+              <Text style={[styles.diaNombre, diaSeleccionado === index && styles.diaTextoSelected]}>
                 {dia.dia}
               </Text>
-              <Text style={[
-                styles.diaFecha,
-                diaSeleccionado === index && styles.diaTextoSelected,
-              ]}>
+              <Text style={[styles.diaFecha, diaSeleccionado === index && styles.diaTextoSelected]}>
                 {`${dia.fecha.getDate()}/${dia.fecha.getMonth() + 1}`}
               </Text>
             </TouchableOpacity>
           ))}
         </ScrollView>
-        <Text style={styles.instruccion}>👆 Gestiona los menús disponibles para toda la semana</Text>
+        <Text style={styles.instruccion}>Gestiona los menús disponibles para toda la semana</Text>
       </View>
 
       {/* TARJETAS DE MENÚ */}
@@ -219,7 +230,7 @@ const IndexPedidoAL: React.FC = () => {
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
           <Text style={styles.sectionTitle}>Menús Disponibles</Text>
           <TouchableOpacity style={styles.buttonPrimary} onPress={abrirModalAgregar}>
-            <Text style={styles.buttonPrimaryText}>+ Agregar Menú</Text>
+            <Text style={styles.buttonPrimaryText}>Agregar Menú</Text>
           </TouchableOpacity>
         </View>
 
@@ -271,12 +282,14 @@ const IndexPedidoAL: React.FC = () => {
               <Text style={styles.textWhite}>Nombre: Admin Aroma Light</Text>
               <Text style={styles.textWhite}>Email: admin@aromalight.com</Text>
 
-              <TouchableOpacity style={styles.recoverBtn} onPress={() => { closeSidebar(); Alert.alert('Recuperar Contraseña', 'Funcionalidad en desarrollo'); }}>
-                <Text style={styles.recoverText}>Recuperar Contraseña</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity style={styles.historyBtn} onPress={() => { closeSidebar(); navigation.navigate('HistorialAL'); }}>
-                <Text style={styles.historyText}>📊 Ver Pedidos</Text>
+              <TouchableOpacity
+                style={styles.historyBtn}
+                onPress={() => {
+                  closeSidebar();
+                  navigation.navigate('HistorialAL');
+                }}
+              >
+                <Text style={styles.historyText}>Ver Pedidos</Text>
               </TouchableOpacity>
 
               <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
