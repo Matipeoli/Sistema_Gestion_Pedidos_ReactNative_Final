@@ -37,10 +37,10 @@ const IndexPedidoAL: React.FC = () => {
   const [diaSeleccionado, setDiaSeleccionado] = useState<number>(0);
   const [pedidoSemanal, setPedidoSemanal] = useState<MenuOption[]>([]);
 
-  // ⚙️ URL base del backend (ajustala a tu IP local o dominio del servidor)
+  // ajustar dependiendo la ip del backend
   const BASE_URL = 'http://192.168.0.10:8080'; 
 
-  // 🟢 Cargar todos los menús desde el backend
+  // cargar todos los menus desde el backend
   const cargarMenus = async () => {
     try {
       const response = await axios.get(`${BASE_URL}/menu/todos`);
@@ -62,7 +62,7 @@ const IndexPedidoAL: React.FC = () => {
     cargarMenus();
   }, []);
 
-  // 🗓️ Generar semana con los menús
+  // genera semana con menus
   const generarSemanaConMenus = (menus: MenuOption[]): DayMenu[] => {
     const hoy = new Date();
     const diaSemana = hoy.getDay();
@@ -86,23 +86,23 @@ const IndexPedidoAL: React.FC = () => {
     return dias;
   };
 
-  // ➕ Agregar nuevo menú
+  //agregar nuevo menu
   const agregarMenu = async (nuevoMenuData: Omit<MenuOption, 'id'>) => {
     try {
       await axios.post(`${BASE_URL}/menu/save`, {
         titulo: nuevoMenuData.title,
         descripcion: nuevoMenuData.description,
         img: nuevoMenuData.image,
-        id_tipo: 1, // Ajustá según tu modelo
+        id_tipo: 1, // ajustar segun bd
       });
-      Alert.alert('✅ Agregado', 'El menú fue agregado correctamente.');
+      Alert.alert('Agregado', 'El menú fue agregado correctamente.');
       cargarMenus();
     } catch (error) {
       Alert.alert('Error', 'No se pudo agregar el menú.');
     }
   };
 
-  // ✏️ Editar menú
+  // editar menu
   const editarMenu = async (id: number, datos: Omit<MenuOption, 'id'>) => {
     try {
       await axios.put(`${BASE_URL}/menu/edit`, {
@@ -112,14 +112,14 @@ const IndexPedidoAL: React.FC = () => {
         img: datos.image,
         id_tipo: 1,
       });
-      Alert.alert('✅ Actualizado', 'El menú fue actualizado correctamente.');
+      Alert.alert('Actualizado', 'El menú fue actualizado correctamente.');
       cargarMenus();
     } catch (error) {
       Alert.alert('Error', 'No se pudo editar el menú.');
     }
   };
 
-  // ❌ Eliminar menú
+  // eliminar menu
   const eliminarMenu = async (menuId: number) => {
     Alert.alert(
       'Confirmar eliminación',
@@ -143,10 +143,10 @@ const IndexPedidoAL: React.FC = () => {
     );
   };
 
-  // 🧾 Confirmar pedido (envía varios menús diarios al backend)
+  // confirmar pedido (manda los menus seleccionados al backend)
   const confirmarPedido = async () => {
     if (pedidoSemanal.length === 0) {
-      Alert.alert('⚠️ Sin selección', 'Seleccioná al menos un menú antes de confirmar.');
+      Alert.alert('Sin selección', 'Seleccioná al menos un menú antes de confirmar.');
       return;
     }
 
@@ -158,7 +158,7 @@ const IndexPedidoAL: React.FC = () => {
 
     try {
       await axios.post(`${BASE_URL}/menuDiario/agregarVarios`, payload);
-      Alert.alert('✅ Pedido confirmado', 'Los menús fueron agregados al menú diario.');
+      Alert.alert('Pedido confirmado', 'Los menús fueron agregados al menú diario.');
       setPedidoSemanal([]);
     } catch (error) {
       console.error(error);
@@ -171,12 +171,12 @@ const IndexPedidoAL: React.FC = () => {
     if (!menu) return;
 
     if (pedidoSemanal.some(m => m.id === menuId)) {
-      Alert.alert('⚠️ Ya agregado', 'Este menú ya está en el pedido.');
+      Alert.alert('Ya agregado', 'Este menú ya está en el pedido.');
       return;
     }
 
     setPedidoSemanal([...pedidoSemanal, menu]);
-    Alert.alert('✅ Agregado', `"${menu.title}" fue agregado al pedido.`);
+    Alert.alert('Agregado', `"${menu.title}" fue agregado al pedido.`);
   };
 
   const abrirModalAgregar = () => {
@@ -220,7 +220,7 @@ const IndexPedidoAL: React.FC = () => {
       {/* CALENDARIO */}
       <View style={styles.calendarioContainer}>
         <View style={styles.calendarioHeader}>
-          <Text style={styles.calendarioTitle}>📅 Vista Semanal de Menús</Text>
+          <Text style={styles.calendarioTitle}>Vista Semanal de Menús</Text>
           <Text style={[styles.textSmall, { color: colors.primaryDark, fontWeight: 'bold' }]}>
             {todosLosMenus.length} menús disponibles
           </Text>
@@ -248,7 +248,7 @@ const IndexPedidoAL: React.FC = () => {
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
           <Text style={styles.sectionTitle}>Menús Disponibles</Text>
           <TouchableOpacity style={styles.buttonPrimary} onPress={abrirModalAgregar}>
-            <Text style={styles.buttonPrimaryText}>+ Agregar Menú</Text>
+            <Text style={styles.buttonPrimaryText}>Agregar Menú</Text>
           </TouchableOpacity>
         </View>
 
@@ -272,7 +272,7 @@ const IndexPedidoAL: React.FC = () => {
       {/* BOTÓN CONFIRMAR PEDIDO */}
       {pedidoSemanal.length > 0 && (
         <TouchableOpacity style={[styles.buttonPrimary, { margin: 16 }]} onPress={confirmarPedido}>
-          <Text style={styles.buttonPrimaryText}>✅ Confirmar Pedido ({pedidoSemanal.length})</Text>
+          <Text style={styles.buttonPrimaryText}>Confirmar Pedido ({pedidoSemanal.length})</Text>
         </TouchableOpacity>
       )}
 
@@ -308,7 +308,7 @@ const IndexPedidoAL: React.FC = () => {
                 style={styles.historyBtn}
                 onPress={() => { closeSidebar(); navigation.navigate('HistorialAL'); }}
               >
-                <Text style={styles.historyText}>📊 Ver Pedidos</Text>
+                <Text style={styles.historyText}>Ver Pedidos</Text>
               </TouchableOpacity>
 
               <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
