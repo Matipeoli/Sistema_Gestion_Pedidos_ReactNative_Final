@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import {View, Text, Image, TouchableOpacity, ScrollView, Modal, StatusBar, Platform, Alert} from 'react-native';
+import { View, Text, Image, TouchableOpacity, ScrollView, Modal, StatusBar, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import ComponenteTarjeta from '../components/ComponenteTarjeta';
 import ComponenteMenuModal from '../components/ComponenteMenuModal';
+import { styles, colors } from '../styles/StylesApp';
 
 type RootStackParamList = {
   LoginScreen: undefined;
@@ -29,6 +30,8 @@ const IndexPedidoAL: React.FC = () => {
   const [modalFormVisible, setModalFormVisible] = useState(false);
   const [modoEdicion, setModoEdicion] = useState(false);
   const [menuEditando, setMenuEditando] = useState<MenuOption | null>(null);
+  const [pedidoSemanal, setPedidoSemanal] = useState<MenuOption[]>([]);
+
 
   const [todosLosMenus, setTodosLosMenus] = useState<MenuOption[]>([
     {
@@ -56,7 +59,6 @@ const IndexPedidoAL: React.FC = () => {
 
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
-  // Generar semana con menús actuales
   const generarSemanaConMenus = (menus: MenuOption[]): DayMenu[] => {
     const hoy = new Date();
     const diaSemana = hoy.getDay();
@@ -83,8 +85,6 @@ const IndexPedidoAL: React.FC = () => {
   useEffect(() => {
     setSemanaActual(generarSemanaConMenus(todosLosMenus));
   }, []);
-
-  const formatearFecha = (fecha: Date) => `${fecha.getDate()}/${fecha.getMonth() + 1}`;
 
   const abrirModalAgregar = () => {
     setModoEdicion(false);
@@ -136,6 +136,21 @@ const IndexPedidoAL: React.FC = () => {
     );
   };
 
+  const confirmarPedido = (menuId: number) => {
+  const menuSeleccionado = todosLosMenus.find(m => m.id === menuId);
+  if (!menuSeleccionado) return;
+
+  // Evitar duplicados
+  if (pedidoSemanal.some(m => m.id === menuId)) {
+    Alert.alert('⚠️ Ya confirmado', 'Este menú ya fue agregado al pedido semanal.');
+    return;
+  }
+
+  setPedidoSemanal([...pedidoSemanal, menuSeleccionado]);
+  Alert.alert('✅ Pedido confirmado', `El menú "${menuSeleccionado.title}" fue agregado al pedido semanal.`);
+};
+
+
   const closeSidebar = () => setVisible(false);
 
   const handleLogout = () => {
@@ -143,66 +158,72 @@ const IndexPedidoAL: React.FC = () => {
     navigation.reset({ index: 0, routes: [{ name: 'LoginScreen' }] });
   };
 
-  const menusDiaActual = semanaActual[diaSeleccionado]?.menus || [];
-
   return (
-    <View style={{ flex: 1, backgroundColor: '#111', paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0 }}>
-      <StatusBar barStyle="light-content" backgroundColor="#222" translucent={false} />
+    <View style={styles.containerWithPadding}>
+      <StatusBar barStyle="light-content" backgroundColor={colors.headerBg} translucent={false} />
 
       {/* HEADER */}
-      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 16, backgroundColor: '#222' }}>
-        <Text style={{ color: '#fff', fontSize: 24, fontWeight: 'bold' }}>i2T<Text style={{ color: '#0beb03ff' }}>ASTE</Text></Text>
-        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <Text style={{ color: '#fff', marginRight: 8 }}>Admin</Text>
-          <Image source={require('../assets/icon.png')} style={{ width: 32, height: 32, borderRadius: 16 }} />
-          <TouchableOpacity style={{ marginLeft: 10 }} onPress={() => setVisible(!visible)}>
-            <View style={{ width: 20, height: 2, backgroundColor: '#fff', marginVertical: 2 }} />
-            <View style={{ width: 20, height: 2, backgroundColor: '#fff', marginVertical: 2 }} />
-            <View style={{ width: 20, height: 2, backgroundColor: '#fff', marginVertical: 2 }} />
+      <View style={styles.header}>
+        <Text style={styles.logo}>
+          i2T<Text style={styles.logoAccent}>ASTE</Text>
+        </Text>
+        <View style={styles.userInfo}>
+          <Text style={styles.userName}>Admin</Text>
+          <Image source={require('../assets/icon.png')} style={styles.avatar} />
+          <TouchableOpacity style={styles.menuBtn} onPress={() => setVisible(!visible)}>
+            <View style={styles.menuBar} />
+            <View style={styles.menuBar} />
+            <View style={styles.menuBar} />
           </TouchableOpacity>
         </View>
       </View>
 
       {/* CALENDARIO */}
-      <View style={{ backgroundColor: '#1e1e1e', paddingVertical: 16, borderBottomWidth: 2, borderBottomColor: '#0beb03ff' }}>
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16, marginBottom: 12 }}>
-          <Text style={{ color: '#fff', fontSize: 16, fontWeight: 'bold' }}>📅 Vista Semanal de Menús</Text>
-          <Text style={{ color: '#0beb03ff', fontSize: 12, fontWeight: 'bold' }}>{todosLosMenus.length} menús disponibles</Text>
+      <View style={styles.calendarioContainer}>
+        <View style={styles.calendarioHeader}>
+          <Text style={styles.calendarioTitle}>📅 Vista Semanal de Menús</Text>
+          <Text style={[styles.textSmall, { color: colors.primaryDark, fontWeight: 'bold' }]}>
+            {todosLosMenus.length} menús disponibles
+          </Text>
         </View>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ paddingHorizontal: 12 }}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.diasScroll}>
           {semanaActual.map((dia, index) => (
             <TouchableOpacity
               key={index}
-              style={{
-                backgroundColor: diaSeleccionado === index ? '#0beb03ff' : '#2a2a2a',
-                borderRadius: 12,
-                padding: 12,
-                marginHorizontal: 4,
-                minWidth: 70,
-                alignItems: 'center',
-                borderWidth: 2,
-                borderColor: diaSeleccionado === index ? '#0beb03ff' : 'transparent',
-              }}
+              style={[
+                styles.diaCard,
+                diaSeleccionado === index && styles.diaCardSelected,
+              ]}
               onPress={() => setDiaSeleccionado(index)}
             >
-              <Text style={{ color: diaSeleccionado === index ? '#000' : '#fff', fontSize: 16, fontWeight: 'bold', marginBottom: 4 }}>{dia.dia}</Text>
-              <Text style={{ color: diaSeleccionado === index ? '#000' : '#999', fontSize: 12 }}>{`${dia.fecha.getDate()}/${dia.fecha.getMonth() + 1}`}</Text>
+              <Text style={[
+                styles.diaNombre,
+                diaSeleccionado === index && styles.diaTextoSelected,
+              ]}>
+                {dia.dia}
+              </Text>
+              <Text style={[
+                styles.diaFecha,
+                diaSeleccionado === index && styles.diaTextoSelected,
+              ]}>
+                {`${dia.fecha.getDate()}/${dia.fecha.getMonth() + 1}`}
+              </Text>
             </TouchableOpacity>
           ))}
         </ScrollView>
-        <Text style={{ color: '#999', fontSize: 12, textAlign: 'center', marginTop: 12, paddingHorizontal: 16 }}>👆 Gestiona los menús disponibles para toda la semana</Text>
+        <Text style={styles.instruccion}>👆 Gestiona los menús disponibles para toda la semana</Text>
       </View>
 
       {/* TARJETAS DE MENÚ */}
-      <ScrollView contentContainerStyle={{ padding: 16, paddingTop: 20 }}>
+      <ScrollView contentContainerStyle={styles.scrollContainerSingle}>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-          <Text style={{ color: '#fff', fontSize: 20, fontWeight: 'bold' }}>Menús Disponibles</Text>
-          <TouchableOpacity style={{ backgroundColor: '#0beb03ff', paddingVertical: 8, paddingHorizontal: 16, borderRadius: 8 }} onPress={abrirModalAgregar}>
-            <Text style={{ color: '#000', fontWeight: 'bold', fontSize: 14 }}>+ Agregar Menú</Text>
+          <Text style={styles.sectionTitle}>Menús Disponibles</Text>
+          <TouchableOpacity style={styles.buttonPrimary} onPress={abrirModalAgregar}>
+            <Text style={styles.buttonPrimaryText}>+ Agregar Menú</Text>
           </TouchableOpacity>
         </View>
 
-        <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' }}>
+        <View style={styles.cardsGrid}>
           {todosLosMenus.map((menu) => (
             <ComponenteTarjeta
               key={menu.id}
@@ -216,6 +237,7 @@ const IndexPedidoAL: React.FC = () => {
                 if (menuToEdit) abrirModalEditar(menuToEdit);
               }}
               onDelete={eliminarMenu}
+              onConfirm={confirmarPedido}
             />
           ))}
         </View>
@@ -239,26 +261,26 @@ const IndexPedidoAL: React.FC = () => {
 
       {/* MENU HAMBURGUESA */}
       <Modal visible={visible} transparent animationType="slide">
-        <TouchableOpacity style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.7)', justifyContent: 'flex-end' }} activeOpacity={1} onPress={closeSidebar}>
+        <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={closeSidebar}>
           <TouchableOpacity activeOpacity={1} onPress={(e) => e.stopPropagation()}>
-            <View style={{ backgroundColor: '#333', padding: 24, borderTopLeftRadius: 20, borderTopRightRadius: 20, minHeight: 350 }}>
-              <TouchableOpacity style={{ position: 'absolute', top: 16, right: 16, zIndex: 10 }} onPress={closeSidebar}>
-                <Text style={{ color: '#fff', fontSize: 24, fontWeight: 'bold' }}>✕</Text>
+            <View style={styles.sidebar}>
+              <TouchableOpacity style={styles.closeBtn} onPress={closeSidebar}>
+                <Text style={styles.closeText}>✕</Text>
               </TouchableOpacity>
-              <Text style={{ color: '#fff', fontSize: 22, marginBottom: 20, marginTop: 20, fontWeight: 'bold' }}>Panel de Administrador</Text>
-              <Text style={{ color: '#fff', marginBottom: 12, fontSize: 16 }}>Nombre: Admin Aroma Light</Text>
-              <Text style={{ color: '#fff', marginBottom: 12, fontSize: 16 }}>Email: admin@aromalight.com</Text>
+              <Text style={styles.sidebarTitle}>Panel de Administrador</Text>
+              <Text style={styles.textWhite}>Nombre: Admin Aroma Light</Text>
+              <Text style={styles.textWhite}>Email: admin@aromalight.com</Text>
 
-              <TouchableOpacity style={{ marginTop: 16, padding: 12, backgroundColor: '#444', borderRadius: 8, alignItems: 'center' }} onPress={() => { closeSidebar(); Alert.alert('Recuperar Contraseña', 'Funcionalidad en desarrollo'); }}>
-                <Text style={{ color: '#0beb03ff', fontWeight: 'bold' }}>Recuperar Contraseña</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity style={{ marginTop: 16, padding: 12, backgroundColor: '#444', borderRadius: 8, alignItems: 'center' }} onPress={() => { closeSidebar(); navigation.navigate('HistorialAL'); }}>
-                <Text style={{ color: '#0beb03ff', fontWeight: 'bold' }}>📊 Ver Pedidos</Text>
+              <TouchableOpacity style={styles.recoverBtn} onPress={() => { closeSidebar(); Alert.alert('Recuperar Contraseña', 'Funcionalidad en desarrollo'); }}>
+                <Text style={styles.recoverText}>Recuperar Contraseña</Text>
               </TouchableOpacity>
 
-              <TouchableOpacity style={{ marginTop: 16, padding: 12, backgroundColor: '#ff4444', borderRadius: 8, alignItems: 'center' }} onPress={handleLogout}>
-                <Text style={{ color: '#fff', fontWeight: 'bold' }}>Cerrar Sesión</Text>
+              <TouchableOpacity style={styles.historyBtn} onPress={() => { closeSidebar(); navigation.navigate('HistorialAL'); }}>
+                <Text style={styles.historyText}>📊 Ver Pedidos</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
+                <Text style={styles.logoutText}>Cerrar Sesión</Text>
               </TouchableOpacity>
             </View>
           </TouchableOpacity>

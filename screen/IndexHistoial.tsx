@@ -1,8 +1,9 @@
 import React from 'react';
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Image, Alert, Modal, StatusBar, Platform } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Image, Alert, Modal, StatusBar } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import ComponenteTarjeta from '../components/ComponenteTarjeta';
+import { styles, colors } from '../styles/StylesApp';
 
 type RootStackParamList = {
   LoginScreen: undefined;
@@ -24,7 +25,6 @@ const IndexHistorial: React.FC = () => {
     });
   };
 
-  // hardcodeo de historial de pedidos
   const historial = [
     {
       title: 'lunes',
@@ -44,23 +44,23 @@ const IndexHistorial: React.FC = () => {
   ];
 
   return (
-    <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#222" translucent={false} />
+    <View style={styles.containerWithPadding}>
+      <StatusBar barStyle="light-content" backgroundColor={colors.headerBg} translucent={false} />
       
       {/* HEADER */}
       <View style={styles.header}>
         <Text style={styles.logo}>
-          i2T<Text style={{ color: '#0beb03ff' }}>ASTE</Text>
+          i2T<Text style={styles.logoAccent}>ASTE</Text>
         </Text>
 
         <View style={styles.userInfo}>
-          <Text style={styles.name}>Manuel</Text>
+          <Text style={styles.userName}>Manuel</Text>
           <Image source={require('../assets/icon.png')} style={styles.avatar} />
 
           <TouchableOpacity style={styles.menuBtn} onPress={() => setVisible(!visible)}>
-            <View style={styles.bar} />
-            <View style={styles.bar} />
-            <View style={styles.bar} />
+            <View style={styles.menuBar} />
+            <View style={styles.menuBar} />
+            <View style={styles.menuBar} />
           </TouchableOpacity>
         </View>
       </View>
@@ -82,7 +82,7 @@ const IndexHistorial: React.FC = () => {
           style={styles.volverBtn}
           onPress={() => navigation.navigate('IndexMainUs')}
         >
-          <Text style={styles.volverBtnText}>← Volver al Menú Principal</Text>
+          <Text style={styles.buttonText}>← Volver al Menú Principal</Text>
         </TouchableOpacity>
       </ScrollView>
 
@@ -95,9 +95,9 @@ const IndexHistorial: React.FC = () => {
                 <Text style={styles.closeText}>✕</Text>
               </TouchableOpacity>
 
-              <Text style={styles.title}>Perfil de Usuario</Text>
-              <Text style={styles.text}>Nombre: Juan Pérez</Text>
-              <Text style={styles.text}>Email: juan.perez@example.com</Text>
+              <Text style={styles.sidebarTitle}>Perfil de Usuario</Text>
+              <Text style={styles.textWhite}>Nombre: Juan Pérez</Text>
+              <Text style={styles.textWhite}>Email: juan.perez@example.com</Text>
 
               <TouchableOpacity 
                 style={styles.recoverBtn}
@@ -119,88 +119,5 @@ const IndexHistorial: React.FC = () => {
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: { 
-    flex: 1, 
-    backgroundColor: '#111', 
-    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: 16,
-    backgroundColor: '#222',
-  },
-  logo: { color: '#fff', fontSize: 24, fontWeight: 'bold' },
-  userInfo: { flexDirection: 'row', alignItems: 'center' },
-  name: { color: '#fff', marginRight: 8 },
-  avatar: { width: 32, height: 32, borderRadius: 16 },
-  menuBtn: { marginLeft: 10 },
-  bar: { width: 20, height: 2, backgroundColor: '#fff', marginVertical: 2 },
-  scrollContainer: {
-    padding: 16,
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    paddingHorizontal: 12,
-    paddingTop: 20,
-    paddingBottom: 30,
-    backgroundColor: '#121212',
-  },
-  // BOTÓN VOLVER
-  volverBtn: {
-    width: '100%',
-    backgroundColor: '#0beb03ff',
-    padding: 16,
-    borderRadius: 12,
-    alignItems: 'center',
-    marginTop: 20,
-  },
-  volverBtnText: {
-    color: '#000',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.7)',
-    justifyContent: 'flex-end',
-  },
-  sidebar: {
-    backgroundColor: '#333',
-    padding: 24,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    minHeight: 400,
-  },
-  closeBtn: { position: 'absolute', top: 16, right: 16, zIndex: 10 },
-  closeText: { color: '#fff', fontSize: 24, fontWeight: 'bold' },
-  title: { 
-    color: '#fff', 
-    fontSize: 22, 
-    marginBottom: 20, 
-    marginTop: 20, 
-    fontWeight: 'bold' 
-  },
-  text: { color: '#fff', marginBottom: 12, fontSize: 16 },
-  recoverBtn: {
-    marginTop: 16,
-    padding: 12,
-    backgroundColor: '#444',
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  recoverText: { color: '#0beb03ff', fontWeight: 'bold' },
-  logoutBtn: {
-    marginTop: 16,
-    padding: 12,
-    backgroundColor: '#ff4444',
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  logoutText: { color: '#fff', fontWeight: 'bold' },
-});
 
 export default IndexHistorial;

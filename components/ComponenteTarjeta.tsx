@@ -15,6 +15,7 @@ interface CardProps {
   showAdminActions?: boolean;
   onEdit?: (id: number) => void;
   onDelete?: (id: number) => void;
+  onConfirm?: (id: number) => void;
 }
 
 const ComponenteTarjeta: React.FC<CardProps> = ({
@@ -29,6 +30,7 @@ const ComponenteTarjeta: React.FC<CardProps> = ({
   showAdminActions = false,
   onEdit,
   onDelete,
+  onConfirm,
 }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [text, setText] = useState('');
@@ -56,7 +58,7 @@ const ComponenteTarjeta: React.FC<CardProps> = ({
               </Text>
             )}
           </View>
-          
+
           {/* Botón normal de acción (para usuarios) */}
           {actionLabel && !showAdminActions && (
             <TouchableOpacity
@@ -86,7 +88,7 @@ const ComponenteTarjeta: React.FC<CardProps> = ({
                 onChangeText={setText}
                 multiline
               />
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={styles.closeButton}
                 onPress={() => setModalVisible(false)}
               >
@@ -96,23 +98,22 @@ const ComponenteTarjeta: React.FC<CardProps> = ({
           </View>
         </Modal>
       </TouchableOpacity>
-
       {/* Botones de administrador (solo si showAdminActions es true) */}
-      {showAdminActions && id && onEdit && onDelete && (
+      {showAdminActions && id && onEdit && onDelete && onConfirm && (
         <View style={styles.adminActionsContainer}>
-          <TouchableOpacity
-            style={styles.btnEditar}
-            onPress={() => onEdit(id)}
-          >
-            <Text style={styles.btnTexto}>✏️ Editar</Text>
+          <TouchableOpacity style={styles.btnEditar} onPress={() => onEdit(id)}>
+            <Text style={styles.btnTexto}>Editar</Text>
           </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.btnEliminar}
-            onPress={() => onDelete(id)}
-          >
-            <Text style={styles.btnTexto}>🗑️ Eliminar</Text>
+
+          <TouchableOpacity style={styles.btnEliminar} onPress={() => onDelete(id)}>
+            <Text style={styles.btnTexto}>Eliminar</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.btnEditar} onPress={() => onConfirm(id)}>
+            <Text style={styles.btnTexto}>Confirmar</Text>
           </TouchableOpacity>
         </View>
+
       )}
     </View>
   );
@@ -139,7 +140,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 18,
     borderTopRightRadius: 18,
   },
-  infoContainer: { 
+  infoContainer: {
     padding: 12,
     paddingTop: 10,
     justifyContent: 'space-between',
@@ -149,16 +150,16 @@ const styles = StyleSheet.create({
     flex: 1,
     marginBottom: 8,
   },
-  title: { 
-    color: '#fff', 
-    fontSize: 15, 
-    fontWeight: 'bold', 
+  title: {
+    color: '#fff',
+    fontSize: 15,
+    fontWeight: 'bold',
     textAlign: 'center',
     marginBottom: 4,
   },
-  description: { 
-    color: 'rgba(255,255,255,0.7)', 
-    fontSize: 12, 
+  description: {
+    color: 'rgba(255,255,255,0.7)',
+    fontSize: 12,
     textAlign: 'center',
     lineHeight: 16,
   },
@@ -168,12 +169,12 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     alignItems: 'center',
   },
-  actionText: { 
-    color: '#000', 
+  actionText: {
+    color: '#000',
     fontWeight: '600',
     fontSize: 13,
   },
-  
+
   // MODAL DE OBSERVACIONES
   modalBackground: {
     flex: 1,
@@ -187,10 +188,10 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 24,
   },
-  modalTitle: { 
-    color: '#fff', 
-    fontSize: 20, 
-    marginBottom: 16, 
+  modalTitle: {
+    color: '#fff',
+    fontSize: 20,
+    marginBottom: 16,
     fontWeight: 'bold',
     textAlign: 'center',
   },

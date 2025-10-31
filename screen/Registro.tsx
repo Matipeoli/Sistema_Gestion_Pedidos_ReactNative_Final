@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Text, TouchableOpacity, ScrollView, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import ComponenteTexto from '../components/ComponenteTexto';
 import ComponenteBoton from '../components/ComponenteBoton';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { styles, colors } from '../styles/StylesApp';
 
 type RootStackParamList = {
   LoginScreen: undefined;
@@ -17,7 +18,6 @@ interface UsuarioRegistro {
 }
 
 const Registro: React.FC = () => {
-  //un solo objeto usuario (igual que en LoginScreen)
   const [usuario, setUsuario] = useState<UsuarioRegistro>({
     nombre: '',
     email: '',
@@ -25,7 +25,6 @@ const Registro: React.FC = () => {
     confirmPassword: '',
   });
 
-  // errores por campo
   const [errores, setErrores] = useState({
     nombre: '',
     email: '',
@@ -35,7 +34,6 @@ const Registro: React.FC = () => {
 
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
-  //handlers dinámicos
   const handleChange = (campo: keyof UsuarioRegistro, valor: string) => {
     setUsuario({ ...usuario, [campo]: valor });
     if (errores[campo]) setErrores({ ...errores, [campo]: '' });
@@ -45,7 +43,6 @@ const Registro: React.FC = () => {
     let valid = true;
     const nuevosErrores = { nombre: '', email: '', password: '', confirmPassword: '' };
 
-    // Validaciones
     if (!usuario.nombre) {
       nuevosErrores.nombre = 'Ingrese un nombre';
       valid = false;
@@ -81,15 +78,14 @@ const Registro: React.FC = () => {
     setErrores(nuevosErrores);
     if (!valid) return;
 
-    // registro exitoso (por ahora sin backend)
     Alert.alert('Registro exitoso', 'Ahora puedes iniciar sesión');
     console.log('Registro:', usuario);
     navigation.navigate('LoginScreen');
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.scrollContainer}>
-      <View style={styles.container}>
+    <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+      <View style={styles.containerCenter}>
         <View style={styles.card}>
           <Text style={styles.title}>Crear Cuenta</Text>
           <Text style={styles.subtitle}>Regístrate en i2TASTE</Text>
@@ -99,7 +95,7 @@ const Registro: React.FC = () => {
             value={usuario.nombre}
             onChangeText={(text) => handleChange('nombre', text)}
           />
-          {errores.nombre ? <Text style={styles.error}>{errores.nombre}</Text> : null}
+          {errores.nombre ? <Text style={styles.textError}>{errores.nombre}</Text> : null}
 
           <ComponenteTexto
             placeholder="Email"
@@ -107,7 +103,7 @@ const Registro: React.FC = () => {
             onChangeText={(text) => handleChange('email', text)}
             keyboardType="email-address"
           />
-          {errores.email ? <Text style={styles.error}>{errores.email}</Text> : null}
+          {errores.email ? <Text style={styles.textError}>{errores.email}</Text> : null}
 
           <ComponenteTexto
             placeholder="Contraseña"
@@ -115,7 +111,7 @@ const Registro: React.FC = () => {
             onChangeText={(text) => handleChange('password', text)}
             secureTextEntry
           />
-          {errores.password ? <Text style={styles.error}>{errores.password}</Text> : null}
+          {errores.password ? <Text style={styles.textError}>{errores.password}</Text> : null}
 
           <ComponenteTexto
             placeholder="Confirmar contraseña"
@@ -123,7 +119,7 @@ const Registro: React.FC = () => {
             onChangeText={(text) => handleChange('confirmPassword', text)}
             secureTextEntry
           />
-          {errores.confirmPassword ? <Text style={styles.error}>{errores.confirmPassword}</Text> : null}
+          {errores.confirmPassword ? <Text style={styles.textError}>{errores.confirmPassword}</Text> : null}
 
           <ComponenteBoton title="Registrarse" onPress={handleRegister} />
 
@@ -135,51 +131,5 @@ const Registro: React.FC = () => {
     </ScrollView>
   );
 };
-
-const styles = StyleSheet.create({
-  scrollContainer: { flexGrow: 1 },
-  container: {
-    flex: 1,
-    backgroundColor: '#121212',
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingVertical: 40,
-  },
-  card: {
-    width: '85%',
-    backgroundColor: '#1e1e1e',
-    padding: 20,
-    borderRadius: 12,
-    shadowColor: '#000000',
-    shadowOpacity: 0.3,
-    shadowRadius: 10,
-    elevation: 10,
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: '#0fbd0f',
-    textAlign: 'center',
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: '#999',
-    textAlign: 'center',
-    marginBottom: 20,
-  },
-  error: {
-    color: '#ff4d4d',
-    marginBottom: 8,
-    marginLeft: 12,
-    fontSize: 12,
-  },
-  link: {
-    color: '#0fbd0f',
-    textAlign: 'center',
-    marginTop: 15,
-    fontSize: 14,
-  },
-});
 
 export default Registro;
