@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity, Alert } from 'react-native';
 import ComponenteTexto from '../components/ComponenteTexto';
 import ComponenteBoton from '../components/ComponenteBoton';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { styles, colors } from '../styles/StylesApp';
+import axios from 'axios';
 
 type RootStackParamList = {
   Registro: undefined;
@@ -15,7 +16,7 @@ type RootStackParamList = {
 interface UsuarioRegistro {
   nombre: string;
   email: string;
-  password: string;
+  contrasenia: string;
 }
 
 const LoginScreen: React.FC = () => {
@@ -24,7 +25,7 @@ const LoginScreen: React.FC = () => {
   const [usuario, setUsuario] = useState<UsuarioRegistro>({
     nombre: '',
     email: '',
-    password: '',
+    contrasenia: '',
   });
 
   const [emailError, setEmailError] = useState('');
@@ -36,11 +37,11 @@ const LoginScreen: React.FC = () => {
   };
 
   const handlePasswordChange = (text: string) => {
-    setUsuario({ ...usuario, password: text });
+    setUsuario({ ...usuario, contrasenia: text });
     if (passwordError) setPasswordError('');
   };
 
-  const handleLogin = () => {
+  const handleLogin = async() => {
     let valid = true;
 
     if (!usuario.email) {
@@ -53,7 +54,7 @@ const LoginScreen: React.FC = () => {
       setEmailError('');
     }
 
-    if (!usuario.password) {
+    if (!usuario.contrasenia) {
       setPasswordError('Ingrese contraseña');
       valid = false;
     } else {
@@ -62,10 +63,21 @@ const LoginScreen: React.FC = () => {
 
     if (!valid) return;
 
-    if (usuario.email === 'admin@ejemplo.com') {
-      navigation.navigate('IndexPedidoAL');
-    } else {
-      navigation.navigate('IndexMainUs');
+     try {
+      const response = await axios.post('http://192.168.0.10:8080/auth/login', usuario);
+
+      //aca va lo de JWT
+      //const token = response.data.token;
+
+      Alert.alert('Login exitoso', 'Bienvenido!');
+      if (usuario.email === 'admin@ejemplo.com') {
+        navigation.navigate('IndexPedidoAL');
+      } else {
+        navigation.navigate('IndexMainUs');
+      }
+    } catch (error: any) {
+      console.error(error.response?.data || error.message);
+      Alert.alert('Error', error.response?.data || 'No se pudo iniciar sesión');
     }
   };
 
@@ -84,7 +96,7 @@ const LoginScreen: React.FC = () => {
 
         <ComponenteTexto
           placeholder="Contraseña"
-          value={usuario.password}
+          value={usuario.contrasenia}
           onChangeText={handlePasswordChange}
           secureTextEntry
         />
