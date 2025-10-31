@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { pool } from '../models/database';
+import { pool } from '../config/database';
 
 export const getMenus = async (req: Request, res: Response) => {
   const [rows] = await pool.query('SELECT * FROM menus ORDER BY id');

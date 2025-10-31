@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { pool } from '../models/database';
+import { pool } from '../config/database';
 import bcrypt from 'bcrypt';
 import { signToken } from '../utils/jwt';
 

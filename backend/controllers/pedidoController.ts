@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { pool } from '../models/database';
+import { pool } from '../config/database';
 
 export const addPedido = async (req: Request, res: Response) => {
   // req.user debe traer id (desde middleware)
