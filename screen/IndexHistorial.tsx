@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Image, Alert, Modal, StatusBar } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -11,8 +11,19 @@ type RootStackParamList = {
   IndexHistorial: undefined;
 };
 
+interface Pedido {
+  id: number;
+  menu: {
+    titulo: string;
+    descripcion: string;
+  };
+  fechaPedido: string;
+  observaciones: string;
+}
+
 const IndexHistorial: React.FC = () => {
-  const [visible, setVisible] = React.useState(false);
+  const [visible, setVisible] = useState(false);
+  const [historial, setHistorial] = useState<Pedido[]>([]);
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
   const closeSidebar = () => setVisible(false);
@@ -25,23 +36,25 @@ const IndexHistorial: React.FC = () => {
     });
   };
 
-  const historial = [
-    {
-      title: 'lunes',
-      description: 'Hamburguesa Clásica + Papas Rústicas',
-      observacion: 'sin leche humana',
-    },
-    {
-      title: 'martes',
-      description: 'Milkshake de Vainilla',
-      observacion: 'sin leche humana',
-    },
-    {
-      title: 'miercoles',
-      description: 'Hamburguesa Clásica + Milkshake de Vainilla',
-      observacion: 'sin leche humana',
-    },
-  ];
+  // cambiar id por el q corresponda
+  const usuarioId = 1;
+
+  // traer historial de pedidos de usuario
+  useEffect(() => {
+    const fetchHistorial = async () => {
+      try {
+        const response = await fetch(`http://TU_IP_LOCAL:8080/pedidos/usuario/${usuarioId}`);
+        if (!response.ok) throw new Error('Error al obtener pedidos');
+        const data = await response.json();
+        setHistorial(data);
+      } catch (error) {
+        console.error(error);
+        Alert.alert('Error', 'No se pudo cargar el historial');
+      }
+    };
+
+    fetchHistorial();
+  }, []);
 
   return (
     <View style={styles.containerWithPadding}>
@@ -67,13 +80,13 @@ const IndexHistorial: React.FC = () => {
 
       {/* SCROLL HISTORIAL */}
       <ScrollView contentContainerStyle={styles.scrollContainer}>
-        {historial.map((item, index) => (
+        {historial.map((item) => (
           <ComponenteTarjeta
-            key={index}
-            title={item.title}
-            description={item.description}
-            observacion={item.observacion}
-            onActionPress={() => Alert.alert('Historial', item.title)}
+            key={item.id}
+            title={new Date(item.fechaPedido).toLocaleDateString()}
+            description={`${item.menu.titulo} - ${item.menu.descripcion}`}
+            observacion={item.observaciones || 'Sin observaciones'}
+            onActionPress={() => Alert.alert('Pedido', item.menu.titulo)}
           />
         ))}
 
@@ -82,7 +95,7 @@ const IndexHistorial: React.FC = () => {
           style={styles.volverBtn}
           onPress={() => navigation.navigate('IndexMainUs')}
         >
-          <Text style={styles.buttonText}>← Volver al Menú Principal</Text>
+          <Text style={styles.buttonText}>Volver al Menú Principal</Text>
         </TouchableOpacity>
       </ScrollView>
 
