@@ -43,7 +43,7 @@ const IndexHistorial: React.FC = () => {
   useEffect(() => {
     const fetchHistorial = async () => {
       try {
-        const response = await fetch(`http://TU_IP_LOCAL:8080/pedidos/usuario/${usuarioId}`);
+        const response = await fetch(`http://192.168.1.5/pedidos/usuario/${usuarioId}`);
         if (!response.ok) throw new Error('Error al obtener pedidos');
         const data = await response.json();
         setHistorial(data);

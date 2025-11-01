@@ -6,7 +6,7 @@ import axios from 'axios';
 import ComponenteBoton from '../components/ComponenteBoton';
 import { styles, colors } from '../styles/StylesApp';
 
-const API_URL = 'http://192.168.0.10:8080'; // cambia a tu IP
+const API_URL = 'http://192.168.1.5:8080'; // cambia a tu IP
 
 type RootStackParamList = {
   IndexPedidoAL: undefined;

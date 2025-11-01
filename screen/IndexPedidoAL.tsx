@@ -38,7 +38,7 @@ const IndexPedidoAL: React.FC = () => {
   const [pedidoSemanal, setPedidoSemanal] = useState<MenuOption[]>([]);
 
   // ajustar dependiendo la ip del backend
-  const BASE_URL = 'http://192.168.0.10:8080'; 
+  const BASE_URL = 'http://192.168.1.5:8080'; 
 
   // cargar todos los menus desde el backend
   const cargarMenus = async () => {

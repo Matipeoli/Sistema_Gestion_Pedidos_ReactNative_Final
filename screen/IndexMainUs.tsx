@@ -7,7 +7,7 @@ import ComponenteTarjeta from '../components/ComponenteTarjeta';
 import { styles, colors } from '../styles/StylesApp';
 
 // cambiar ip por la de tu servidor backend
-const API_URL = 'http://192.168.0.10:8080';
+const API_URL = 'http://192.168.1.5:8080';
 
 type RootStackParamList = {
   LoginScreen: undefined;
