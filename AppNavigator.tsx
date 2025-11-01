@@ -4,7 +4,7 @@ import LoginScreen from './screen/Login';
 import Registro from './screen/Registro';
 import IndexMainUs from './screen/IndexMainUs';
 import IndexPedidoAL from './screen/IndexPedidoAL';
-import IndexHistorial from './screen/IndexHistoial';
+import IndexHistorial from './screen/IndexHistorial';
 import HistorialAL from './screen/HistorialAL';
 
 const Stack = createNativeStackNavigator();
