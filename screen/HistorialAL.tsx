@@ -1,9 +1,12 @@
-import React, { useState } from 'react';
-import { View, Text, Image, TouchableOpacity, Modal, ScrollView, Alert } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, Image, TouchableOpacity, Modal, ScrollView, Alert, StatusBar } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import axios from 'axios';
 import ComponenteBoton from '../components/ComponenteBoton';
 import { styles, colors } from '../styles/StylesApp';
+
+const API_URL = 'http://192.168.0.10:8080'; // cambia a tu IP
 
 type RootStackParamList = {
   IndexPedidoAL: undefined;
@@ -28,78 +31,9 @@ interface Pedido {
 const HistorialAL: React.FC = () => {
   const [visible, setVisible] = useState(false);
   const [detalleVisible, setDetalleVisible] = useState(false);
+  const [pedidos, setPedidos] = useState<Pedido[]>([]);
   const [pedidoSeleccionado, setPedidoSeleccionado] = useState<Pedido | null>(null);
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-
-  const pedidos: Pedido[] = [
-    {
-      id: '1',
-      nombre: 'Hamburguesa Clásica',
-      observaciones: 'Sin cebolla',
-      cantidad: 2,
-    },
-    {
-      id: '2',
-      nombre: 'Papas Rústicas',
-      observaciones: 'Con cheddar',
-      cantidad: 1,
-    },
-    {
-      id: '3',
-      nombre: 'Milkshake de Vainilla',
-      observaciones: 'Sin crema',
-      cantidad: 1,
-    },
-  ];
-
-  const obtenerDetalles = (pedidoId: string): DetallePedido[] => {
-    const detallesPorPedido: { [key: string]: DetallePedido[] } = {
-      '1': [
-        {
-          nombreUsuario: 'Juan Pérez',
-          email: 'juan.perez@empresa.com',
-          observacion: 'Sin cebolla',
-          fecha: '29/10/2025',
-        },
-        {
-          nombreUsuario: 'María González',
-          email: 'maria.gonzalez@empresa.com',
-          observacion: 'Sin cebolla, extra queso',
-          fecha: '29/10/2025',
-        },
-      ],
-      '2': [
-        {
-          nombreUsuario: 'Carlos López',
-          email: 'carlos.lopez@empresa.com',
-          observacion: 'Con cheddar',
-          fecha: '29/10/2025',
-        },
-      ],
-      '3': [
-        {
-          nombreUsuario: 'Ana Martínez',
-          email: 'ana.martinez@empresa.com',
-          observacion: 'Sin crema',
-          fecha: '29/10/2025',
-        },
-      ],
-    };
-
-    return detallesPorPedido[pedidoId] || [];
-  };
-
-  const abrirDetalle = (pedido: Pedido) => {
-    const detalles = obtenerDetalles(pedido.id);
-    setPedidoSeleccionado({ ...pedido, detalles });
-    setDetalleVisible(true);
-  };
-
-  const fechaActual = new Date().toLocaleDateString('es-AR', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-  });
 
   const closeSidebar = () => setVisible(false);
 
@@ -110,6 +44,38 @@ const HistorialAL: React.FC = () => {
       routes: [{ name: 'LoginScreen' }],
     });
   };
+
+  // carga todos los pedidos al iniciar
+  useEffect(() => {
+    obtenerPedidos();
+  }, []);
+
+  const obtenerPedidos = async () => {
+    try {
+      const res = await axios.get(`${API_URL}/pedidos`);
+      setPedidos(res.data);
+    } catch (error) {
+      console.error('Error al obtener pedidos:', error);
+      Alert.alert('Error', 'No se pudieron cargar los pedidos.');
+    }
+  };
+
+  const abrirDetalle = async (pedido: Pedido) => {
+    try {
+      const res = await axios.get(`${API_URL}/pedidos/detalle/${pedido.id}`);
+      setPedidoSeleccionado({ ...pedido, detalles: res.data });
+      setDetalleVisible(true);
+    } catch (error) {
+      console.error('Error al obtener detalles:', error);
+      Alert.alert('Error', 'No se pudieron cargar los detalles del pedido.');
+    }
+  };
+
+  const fechaActual = new Date().toLocaleDateString('es-AR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  });
 
   return (
     <View style={styles.container}>
@@ -164,7 +130,7 @@ const HistorialAL: React.FC = () => {
 
           <ComponenteBoton
             title="Actualizar"
-            onPress={() => Alert.alert('Actualizar', 'Pedidos actualizados')}
+            onPress={obtenerPedidos}
           />
         </View>
       </ScrollView>
@@ -178,7 +144,6 @@ const HistorialAL: React.FC = () => {
       >
         <View style={styles.modalOverlayDetalle}>
           <View style={styles.modalContainerDetalle}>
-            {/* HEADER DEL MODAL */}
             <View style={styles.modalHeaderDetalle}>
               <Text style={styles.modalTitleDetalle}>Detalle del Pedido</Text>
               <TouchableOpacity
@@ -189,7 +154,6 @@ const HistorialAL: React.FC = () => {
               </TouchableOpacity>
             </View>
 
-            {/* INFORMACIÓN DEL MENÚ */}
             {pedidoSeleccionado && (
               <>
                 <View style={styles.menuInfoDetalle}>
@@ -200,7 +164,6 @@ const HistorialAL: React.FC = () => {
                   </View>
                 </View>
 
-                {/* LISTA DE PERSONAS */}
                 <Text style={styles.sectionTitleDetalle}>Personas que solicitaron:</Text>
 
                 <ScrollView style={styles.detallesScroll}>
@@ -219,6 +182,7 @@ const HistorialAL: React.FC = () => {
                       </View>
 
                       <Text style={styles.fechaText}>Fecha: {detalle.fecha}</Text>
+                      <Text style={styles.observacionText}>Observación: {detalle.observacion}</Text>
                     </View>
                   ))}
                 </ScrollView>
@@ -235,13 +199,9 @@ const HistorialAL: React.FC = () => {
         </View>
       </Modal>
 
-      {/* MENÚ HAMBURGUESA */}
+      {/* MENU HAMBURGUESA */}
       <Modal visible={visible} transparent animationType="slide">
-        <TouchableOpacity
-          style={styles.modalOverlay}
-          activeOpacity={1}
-          onPress={closeSidebar}
-        >
+        <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={closeSidebar}>
           <TouchableOpacity activeOpacity={1} onPress={(e) => e.stopPropagation()}>
             <View style={styles.sidebar}>
               <TouchableOpacity style={styles.closeBtn} onPress={closeSidebar}>

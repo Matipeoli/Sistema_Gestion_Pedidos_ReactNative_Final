@@ -505,6 +505,11 @@ export const styles = StyleSheet.create({
     width: '25%',
     textAlign: 'center',
   },
+  observacionText: {
+  color: colors.text,
+  fontSize: 14,
+  marginTop: 4,
+},
 
   // ==================== BOTONES ESPECIALES ====================
   detalleBtn: {
