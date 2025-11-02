@@ -52,7 +52,7 @@ const HistorialAL: React.FC = () => {
 
   const obtenerPedidos = async () => {
     try {
-      const res = await axios.get(`${API_URL}/pedidos`);
+      const res = await axios.get(`${API_URL}/pedido`);
       setPedidos(res.data);
     } catch (error) {
       console.error('Error al obtener pedidos:', error);

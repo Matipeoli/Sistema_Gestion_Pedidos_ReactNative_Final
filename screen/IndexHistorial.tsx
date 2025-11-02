@@ -5,6 +5,8 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import ComponenteTarjeta from '../components/ComponenteTarjeta';
 import { styles, colors } from '../styles/StylesApp';
 
+const API_URL = 'http://192.168.0.10:8080'; // cambia a tu IP
+
 type RootStackParamList = {
   LoginScreen: undefined;
   IndexMainUs: undefined;
@@ -43,7 +45,7 @@ const IndexHistorial: React.FC = () => {
   useEffect(() => {
     const fetchHistorial = async () => {
       try {
-        const response = await fetch(`http://TU_IP_LOCAL:8080/pedidos/usuario/${usuarioId}`);
+        const response = await fetch(`http://${API_URL}:8080/menu/todos`);
         if (!response.ok) throw new Error('Error al obtener pedidos');
         const data = await response.json();
         setHistorial(data);
