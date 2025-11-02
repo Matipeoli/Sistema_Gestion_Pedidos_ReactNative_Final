@@ -11,7 +11,7 @@ const Stack = createNativeStackNavigator();
 
 const AppNavigator: React.FC = () => {
   return (
-    <Stack.Navigator initialRouteName="Registro">
+    <Stack.Navigator>
       <Stack.Screen name="Registro" component={Registro} options={{ headerShown: false }} />
       <Stack.Screen name="LoginScreen" component={LoginScreen} options={{ headerShown: false }}  />
       <Stack.Screen name="IndexMainUs" component={IndexMainUs} options={{ headerShown: false }}  />

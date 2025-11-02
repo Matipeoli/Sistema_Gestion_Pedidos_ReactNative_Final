@@ -38,7 +38,7 @@ const IndexMainUs: React.FC = () => {
   // obtiene todos los menus
   const obtenerMenus = async () => {
     try {
-      const res = await axios.get(`${API_URL}/menu`);
+      const res = await axios.get(`${API_URL}/menu/todos`);
       const data = res.data.map((m: any) => ({
         id: m.id.toString(),
         nombre: m.titulo,
@@ -60,7 +60,7 @@ const IndexMainUs: React.FC = () => {
     }
 
     try {
-      await axios.post(`${API_URL}/pedidos/guardar`, {
+      await axios.post(`${API_URL}/pedidos/save`, {
         usuarioId: usuarioId,
         menuId: parseInt(menuId),
         fechaPedido: new Date().toISOString().split('T')[0],
