@@ -6,6 +6,16 @@ import axios from 'axios';
 import ComponenteBoton from '../components/ComponenteBoton';
 import { styles, colors } from '../styles/StylesApp';
 import { API_BASE } from '../api/menuApi';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+const api = axios.create({ baseURL: API_BASE });
+api.interceptors.request.use(async (config) => {
+  const token = await AsyncStorage.getItem('token');
+  if (token && config.headers) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
 
 
 type RootStackParamList = {
@@ -53,7 +63,7 @@ const toYYYYMMDD = (d: Date) => d.toISOString().slice(0,10);
   const obtenerPedidos = async (fechaParam?: string) => {
   try {
     const fecha = fechaParam ?? toYYYYMMDD(new Date());
-    const res = await axios.get(`${API_BASE}/pedido/obtenerFecha`, {
+    const res = await api.get(`/pedido/obtenerFecha`, {
       params: { fecha }
     });
     setPedidos(res.data);
@@ -67,7 +77,7 @@ const toYYYYMMDD = (d: Date) => d.toISOString().slice(0,10);
 const abrirDetalle = async (pedido: Pedido) => {
   try {
     const fecha = toYYYYMMDD(new Date()); 
-    const res = await axios.get(`${API_BASE}/pedido/obtenerFecha`, {
+    const res = await api.get(`/pedido/obtenerFecha`, {
       params: { fecha }
     });
     const pedidosDeLaFecha = res.data;

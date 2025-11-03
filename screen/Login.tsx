@@ -68,8 +68,8 @@ const LoginScreen: React.FC = () => {
 
      try {
       const response = await axios.post(`${API_BASE}/auth/login`, usuario);
-      //aca va lo de JWT
-      //const token = response.data.token;
+      const token = response.data.token;
+      await AsyncStorage.setItem('token', token);
       await AsyncStorage.setItem('usuarioNombre', response.data.nombre);
       await AsyncStorage.setItem('usuarioId', response.data.id.toString());
       Alert.alert('Login exitoso', 'Bienvenido!');

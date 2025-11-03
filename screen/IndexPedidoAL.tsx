@@ -7,6 +7,16 @@ import ComponenteTarjeta from '../components/ComponenteTarjeta';
 import ComponenteMenuModal from '../components/ComponenteMenuModal';
 import { styles, colors } from '../styles/StylesApp';
 import { API_BASE } from '../api/menuApi';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+const api = axios.create({ baseURL: API_BASE });
+api.interceptors.request.use(async (config) => {
+  const token = await AsyncStorage.getItem('token');
+  if (token && config.headers) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
 
 type RootStackParamList = {
   LoginScreen: undefined;
@@ -43,7 +53,7 @@ const IndexPedidoAL: React.FC = () => {
   // cargar todos los menus desde el backend
   const cargarMenus = async () => {
     try {
-      const response = await axios.get(`${API_BASE}/menu/todos`);
+      const response = await api.get(`/menu/todos`);
       const data = response.data.map((m: any) => ({
         id: m.id,
         title: m.titulo,
@@ -89,7 +99,7 @@ const IndexPedidoAL: React.FC = () => {
   //agregar nuevo menu
   const agregarMenu = async (nuevoMenuData: Omit<MenuOption, 'id'>) => {
     try {
-      await axios.post(`${API_BASE}/menu/save`, {
+      await api.post(`/menu/save`, {
         titulo: nuevoMenuData.title,
         descripcion: nuevoMenuData.description,
         img: nuevoMenuData.image,
@@ -105,7 +115,7 @@ const IndexPedidoAL: React.FC = () => {
   // editar menu
   const editarMenu = async (id: number, datos: Omit<MenuOption, 'id'>) => {
     try {
-      await axios.put(`${API_BASE}/menu/edit`, {
+      await api.put(`/menu/edit`, {
         id,
         titulo: datos.title,
         descripcion: datos.description,
@@ -157,7 +167,7 @@ const IndexPedidoAL: React.FC = () => {
     }));
 
     try {
-      await axios.post(`${API_BASE}/menuDiario/agregarVarios`, payload);
+      await api.post(`/menuDiario/agregarVarios`, payload);
       Alert.alert('Pedido confirmado', 'Los menús fueron agregados al menú diario.');
       setPedidoSemanal([]);
     } catch (error) {

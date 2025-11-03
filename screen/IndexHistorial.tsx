@@ -5,6 +5,17 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import ComponenteTarjeta from '../components/ComponenteTarjeta';
 import { styles, colors } from '../styles/StylesApp';
 import { API_BASE } from '../api/menuApi';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
+
+const api = axios.create({ baseURL: API_BASE });
+api.interceptors.request.use(async (config) => {
+  const token = await AsyncStorage.getItem('token');
+  if (token && config.headers) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
 
 
 type RootStackParamList = {
@@ -43,19 +54,17 @@ const IndexHistorial: React.FC = () => {
 
   // traer historial de pedidos de usuario
   useEffect(() => {
-    const fetchHistorial = async () => {
+    const Historial = async () => {
       try {
-        const response = await fetch(`http://${API_BASE}:8080/menu/todos`);
-        if (!response.ok) throw new Error('Error al obtener pedidos');
-        const data = await response.json();
-        setHistorial(data);
-      } catch (error) {
-        console.error(error);
-        Alert.alert('Error', 'No se pudo cargar el historial');
-      }
+      const response = await api.get(`/pedido/usuario/${usuarioId}`);
+      setHistorial(response.data);
+    } catch (error: any) {
+      console.error(error);
+      Alert.alert('Error', 'No se pudo cargar el historial');
+    }
     };
 
-    fetchHistorial();
+    Historial();
   }, []);
 
   return (

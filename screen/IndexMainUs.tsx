@@ -9,6 +9,16 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { API_BASE } from '../api/menuApi';
 
+const api = axios.create({ baseURL: API_BASE });
+api.interceptors.request.use(async (config) => {
+  const token = await AsyncStorage.getItem('token');
+  if (token && config.headers) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+
 
 type RootStackParamList = {
   LoginScreen: undefined;
@@ -26,7 +36,7 @@ interface MenuOption {
 const IndexMainUs: React.FC = () => {
   const [visible, setVisible] = useState(false);
   const [menus, setMenus] = useState<MenuOption[]>([]);
-  const [pedidosRealizados, setPedidosRealizados] = useState<string[]>([]); // solo guardamos IDs de menús pedidos
+  const [pedidosRealizados, setPedidosRealizados] = useState<string[]>([]); 
   const [usuarioId, setUsuarioId] = useState<number>(1); 
   const [nombreUsuario, setNombreUsuario] = useState('');
 
@@ -46,7 +56,7 @@ const IndexMainUs: React.FC = () => {
   // obtiene todos los menus
   const obtenerMenus = async () => {
     try {
-      const res = await axios.get(`${API_BASE}/menu/todos`);
+      const res = await api.get(`/menu/todos`);
       const data = res.data.map((m: any) => ({
         id: m.id.toString(),
         nombre: m.titulo,
@@ -68,7 +78,7 @@ const IndexMainUs: React.FC = () => {
     }
 
     try {
-      await axios.post(`${API_BASE}/pedidos/save`, {
+      await api.post(`/pedidos/save`, {
         usuarioId: usuarioId,
         menuId: parseInt(menuId),
         fechaPedido: new Date().toISOString().split('T')[0],

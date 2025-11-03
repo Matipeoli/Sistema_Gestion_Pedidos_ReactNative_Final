@@ -2,7 +2,7 @@ import axios from "axios";
 
 export const API_BASE = "http://192.168.0.10:8080";
 
-// ====== MENÚS ======
+// MENUS 
 export const obtenerMenus = async () => {
   const res = await axios.get(`${API_BASE}/menu/todos`);
   return res.data;
@@ -25,7 +25,7 @@ export const eliminarMenu = async (id: number) => {
   await axios.delete(`${API_BASE}/menu/delete/${id}`);
 };
 
-// ====== MENÚ DIARIO ======
+// MENU DIARIO 
 export const obtenerMenusDiarios = async (fecha: string) => {
   const res = await axios.get(`${API_BASE}/menuDiario/todos/${fecha}`);
   return res.data;
