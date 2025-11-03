@@ -6,6 +6,7 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { styles, colors } from '../styles/StylesApp';
 import axios from 'axios';
+import { API_BASE } from '../api/menuApi';
 
 type RootStackParamList = {
   LoginScreen: undefined;
@@ -80,7 +81,7 @@ const Registro: React.FC = () => {
     if (!valid) return;
 
     try {
-      const response = await axios.post('http://192.168.0.10:8080/auth/register', {
+      const response = await axios.post(`${API_BASE}/auth/register`, {
         nombre: usuario.nombre,
         email: usuario.email,
         contrasenia: usuario.contrasenia,

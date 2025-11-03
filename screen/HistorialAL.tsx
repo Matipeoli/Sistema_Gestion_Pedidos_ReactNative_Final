@@ -5,8 +5,8 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import axios from 'axios';
 import ComponenteBoton from '../components/ComponenteBoton';
 import { styles, colors } from '../styles/StylesApp';
+import { API_BASE } from '../api/menuApi';
 
-const API_URL = 'http://192.168.0.10:8080'; // cambia a tu IP
 
 type RootStackParamList = {
   IndexPedidoAL: undefined;
@@ -34,8 +34,8 @@ const HistorialAL: React.FC = () => {
   const [pedidos, setPedidos] = useState<Pedido[]>([]);
   const [pedidoSeleccionado, setPedidoSeleccionado] = useState<Pedido | null>(null);
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-
   const closeSidebar = () => setVisible(false);
+const toYYYYMMDD = (d: Date) => d.toISOString().slice(0,10);
 
   const handleLogout = () => {
     closeSidebar();
@@ -50,32 +50,38 @@ const HistorialAL: React.FC = () => {
     obtenerPedidos();
   }, []);
 
-  const obtenerPedidos = async () => {
-    try {
-      const res = await axios.get(`${API_URL}/pedido`);
-      setPedidos(res.data);
-    } catch (error) {
-      console.error('Error al obtener pedidos:', error);
-      Alert.alert('Error', 'No se pudieron cargar los pedidos.');
-    }
-  };
+  const obtenerPedidos = async (fechaParam?: string) => {
+  try {
+    const fecha = fechaParam ?? toYYYYMMDD(new Date());
+    const res = await axios.get(`${API_BASE}/pedido/obtenerFecha`, {
+      params: { fecha }
+    });
+    setPedidos(res.data);
+  } catch (error) {
+    console.error('Error al obtener pedidos:', error);
+    Alert.alert('Error', 'No se pudieron cargar los pedidos.');
+  }
+};
 
-  const abrirDetalle = async (pedido: Pedido) => {
-    try {
-      const res = await axios.get(`${API_URL}/pedidos/detalle/${pedido.id}`);
-      setPedidoSeleccionado({ ...pedido, detalles: res.data });
-      setDetalleVisible(true);
-    } catch (error) {
-      console.error('Error al obtener detalles:', error);
-      Alert.alert('Error', 'No se pudieron cargar los detalles del pedido.');
-    }
-  };
+// abrir detalle de un pedido 
+const abrirDetalle = async (pedido: Pedido) => {
+  try {
+    const fecha = toYYYYMMDD(new Date()); 
+    const res = await axios.get(`${API_BASE}/pedido/obtenerFecha`, {
+      params: { fecha }
+    });
+    const pedidosDeLaFecha = res.data;
+    const pedidoCompleto = pedidosDeLaFecha.find((p:any) => p.id === pedido.id);
+    const detalles = pedidoCompleto ? (pedidoCompleto.detalles || []) : [];
+    setPedidoSeleccionado({ ...pedido, detalles });
+    setDetalleVisible(true);
+  } catch (error) {
+    console.error('Error al obtener detalles:', error);
+    Alert.alert('Error', 'No se pudo obtener el detalle del pedido.');
+  }
+};
 
-  const fechaActual = new Date().toLocaleDateString('es-AR', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-  });
+  const fechaActual = new Date().toLocaleDateString();
 
   return (
     <View style={styles.container}>

@@ -6,6 +6,7 @@ import axios from 'axios';
 import ComponenteTarjeta from '../components/ComponenteTarjeta';
 import ComponenteMenuModal from '../components/ComponenteMenuModal';
 import { styles, colors } from '../styles/StylesApp';
+import { API_BASE } from '../api/menuApi';
 
 type RootStackParamList = {
   LoginScreen: undefined;
@@ -37,13 +38,12 @@ const IndexPedidoAL: React.FC = () => {
   const [diaSeleccionado, setDiaSeleccionado] = useState<number>(0);
   const [pedidoSemanal, setPedidoSemanal] = useState<MenuOption[]>([]);
 
-  // ajustar dependiendo la ip del backend
-  const BASE_URL = 'http://192.168.0.10:8080'; 
+   
 
   // cargar todos los menus desde el backend
   const cargarMenus = async () => {
     try {
-      const response = await axios.get(`${BASE_URL}/menu/todos`);
+      const response = await axios.get(`${API_BASE}/menu/todos`);
       const data = response.data.map((m: any) => ({
         id: m.id,
         title: m.titulo,
@@ -89,7 +89,7 @@ const IndexPedidoAL: React.FC = () => {
   //agregar nuevo menu
   const agregarMenu = async (nuevoMenuData: Omit<MenuOption, 'id'>) => {
     try {
-      await axios.post(`${BASE_URL}/menu/save`, {
+      await axios.post(`${API_BASE}/menu/save`, {
         titulo: nuevoMenuData.title,
         descripcion: nuevoMenuData.description,
         img: nuevoMenuData.image,
@@ -105,7 +105,7 @@ const IndexPedidoAL: React.FC = () => {
   // editar menu
   const editarMenu = async (id: number, datos: Omit<MenuOption, 'id'>) => {
     try {
-      await axios.put(`${BASE_URL}/menu/edit`, {
+      await axios.put(`${API_BASE}/menu/edit`, {
         id,
         titulo: datos.title,
         descripcion: datos.description,
@@ -131,7 +131,7 @@ const IndexPedidoAL: React.FC = () => {
           style: 'destructive',
           onPress: async () => {
             try {
-              await axios.delete(`${BASE_URL}/menu/delete/${menuId}`);
+              await axios.delete(`${API_BASE}/menu/delete/${menuId}`);
               Alert.alert('✓ Eliminado', 'El menú fue eliminado correctamente.');
               cargarMenus();
             } catch {
@@ -157,7 +157,7 @@ const IndexPedidoAL: React.FC = () => {
     }));
 
     try {
-      await axios.post(`${BASE_URL}/menuDiario/agregarVarios`, payload);
+      await axios.post(`${API_BASE}/menuDiario/agregarVarios`, payload);
       Alert.alert('Pedido confirmado', 'Los menús fueron agregados al menú diario.');
       setPedidoSemanal([]);
     } catch (error) {

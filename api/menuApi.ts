@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_BASE = "http://192.168.0.10:8080";
+export const API_BASE = "http://192.168.0.10:8080";
 
 // ====== MENÚS ======
 export const obtenerMenus = async () => {

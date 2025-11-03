@@ -6,6 +6,9 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { styles, colors } from '../styles/StylesApp';
 import axios from 'axios';
+import { API_BASE } from '../api/menuApi';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 type RootStackParamList = {
   Registro: undefined;
@@ -64,11 +67,11 @@ const LoginScreen: React.FC = () => {
     if (!valid) return;
 
      try {
-      const response = await axios.post('http://192.168.0.10:8080/auth/login', usuario);
-
+      const response = await axios.post(`${API_BASE}/auth/login`, usuario);
       //aca va lo de JWT
       //const token = response.data.token;
-
+      await AsyncStorage.setItem('usuarioNombre', response.data.nombre);
+      await AsyncStorage.setItem('usuarioId', response.data.id.toString());
       Alert.alert('Login exitoso', 'Bienvenido!');
       if (usuario.email === 'admin@ejemplo.com') {
         navigation.navigate('IndexPedidoAL');

@@ -5,9 +5,10 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import axios from 'axios';
 import ComponenteTarjeta from '../components/ComponenteTarjeta';
 import { styles, colors } from '../styles/StylesApp';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// cambiar ip por la de tu servidor backend
-const API_URL = 'http://192.168.0.10:8080';
+import { API_BASE } from '../api/menuApi';
+
 
 type RootStackParamList = {
   LoginScreen: undefined;
@@ -26,19 +27,26 @@ const IndexMainUs: React.FC = () => {
   const [visible, setVisible] = useState(false);
   const [menus, setMenus] = useState<MenuOption[]>([]);
   const [pedidosRealizados, setPedidosRealizados] = useState<string[]>([]); // solo guardamos IDs de menús pedidos
-  const [usuarioId, setUsuarioId] = useState<number>(1); // 👈 luego pasalo desde login
+  const [usuarioId, setUsuarioId] = useState<number>(1); 
+  const [nombreUsuario, setNombreUsuario] = useState('');
 
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
   // carga menus al iniciar
   useEffect(() => {
     obtenerMenus();
+    //carga el nombre del usuario
+    const cargarNombre = async () => {
+    const nombre = await AsyncStorage.getItem('usuarioNombre');
+    if (nombre) setNombreUsuario(nombre);
+  };
+    cargarNombre();
   }, []);
 
   // obtiene todos los menus
   const obtenerMenus = async () => {
     try {
-      const res = await axios.get(`${API_URL}/menu/todos`);
+      const res = await axios.get(`${API_BASE}/menu/todos`);
       const data = res.data.map((m: any) => ({
         id: m.id.toString(),
         nombre: m.titulo,
@@ -60,7 +68,7 @@ const IndexMainUs: React.FC = () => {
     }
 
     try {
-      await axios.post(`${API_URL}/pedidos/save`, {
+      await axios.post(`${API_BASE}/pedidos/save`, {
         usuarioId: usuarioId,
         menuId: parseInt(menuId),
         fechaPedido: new Date().toISOString().split('T')[0],
@@ -138,7 +146,7 @@ const IndexMainUs: React.FC = () => {
               </TouchableOpacity>
 
               <Text style={styles.sidebarTitle}>Perfil de Usuario</Text>
-              <Text style={styles.textWhite}>ID: {usuarioId}</Text>
+              <Text style={styles.textWhite}>Nombre: {nombreUsuario}</Text>
               <Text style={styles.textWhite}>Email: usuario@ejemplo.com</Text>
 
               <TouchableOpacity
