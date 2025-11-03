@@ -71,9 +71,10 @@ const LoginScreen: React.FC = () => {
       const token = response.data.token;
       await AsyncStorage.setItem('token', token);
       await AsyncStorage.setItem('usuarioNombre', response.data.nombre);
-      await AsyncStorage.setItem('usuarioId', response.data.id.toString());
+      await AsyncStorage.setItem('usuarioNombre', response.data.apellido);
+      await AsyncStorage.setItem('rol', response.data.rol);
       Alert.alert('Login exitoso', 'Bienvenido!');
-      if (usuario.email === 'admin@ejemplo.com') {
+      if (response.data.rol != 'Usuario') {
         navigation.navigate('IndexPedidoAL');
       } else {
         navigation.navigate('IndexMainUs');

@@ -53,6 +53,7 @@ const IndexPedidoAL: React.FC = () => {
   // cargar todos los menus desde el backend
   const cargarMenus = async () => {
     try {
+      debugger
       const response = await api.get(`/menu/todos`);
       const data = response.data.map((m: any) => ({
         id: m.id,
@@ -68,9 +69,38 @@ const IndexPedidoAL: React.FC = () => {
     }
   };
 
-  useEffect(() => {
-    cargarMenus();
-  }, []);
+ useEffect(() => {
+  const init = async () => {
+    try {
+ 
+      const token = await AsyncStorage.getItem('token');
+      if (token) {
+        console.log('Token encontrado:', token);
+      } else {
+        console.log('No hay token guardado');
+      }
+      const response = await api.get('/menu/todos');
+      console.log('Menus del backend:', response.data);
+      const data = response.data.map((m: any) => ({
+        id: m.id,
+        title: m.titulo,
+        description: m.descripcion,
+        image: m.img,
+      }));
+
+      setTodosLosMenus(data);
+      setSemanaActual(generarSemanaConMenus(data));
+
+    } catch (error) {
+      console.error('Error al cargar menús, se genera semana vacía:', error);
+
+      setTodosLosMenus([]);
+      setSemanaActual(generarSemanaConMenus([]));
+    }
+  };
+
+  init();
+}, []);
 
   // genera semana con menus
   const generarSemanaConMenus = (menus: MenuOption[]): DayMenu[] => {
@@ -103,7 +133,7 @@ const IndexPedidoAL: React.FC = () => {
         titulo: nuevoMenuData.title,
         descripcion: nuevoMenuData.description,
         img: nuevoMenuData.image,
-        id_tipo: 1, // ajustar segun bd
+        id_tipo: 2, // ajustar segun bd
       });
       Alert.alert('Agregado', 'El menú fue agregado correctamente.');
       cargarMenus();
@@ -141,7 +171,7 @@ const IndexPedidoAL: React.FC = () => {
           style: 'destructive',
           onPress: async () => {
             try {
-              await axios.delete(`${API_BASE}/menu/delete/${menuId}`);
+              await api.delete(`/menu/delete/${menuId}`);
               Alert.alert('✓ Eliminado', 'El menú fue eliminado correctamente.');
               cargarMenus();
             } catch {
